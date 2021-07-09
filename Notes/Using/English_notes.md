@@ -1,8 +1,8 @@
 # Vocabulary
 
----
 
-## 1 profession
+
+## Profession
 
 ### ophthalmology(paper)
 

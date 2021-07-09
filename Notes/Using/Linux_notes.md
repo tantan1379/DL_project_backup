@@ -2,7 +2,7 @@
 
 ## 一、基础
 
-### 1、概述
+### 概述
 
 Linux属于一种**操作系统**，具有很好的稳定性、安全性和处理多并发的能力
 
@@ -14,7 +14,7 @@ Linux最擅长的领域：**服务器**
 
 
 
-### 2、虚拟机创建
+### 虚拟机创建
 
 linux分区：boot(1G)、swap(=内存)、root(剩余)
 
@@ -22,7 +22,7 @@ swap分区作用：可以临时充当内存，但速度不如内存
 
 
 
-### 3、网络连接的三种模式
+### 网络连接的三种模式
 
 1、桥接模式：虚拟系统可以和外部系统功能通讯，但是容易产生ip冲突
 
@@ -32,7 +32,7 @@ swap分区作用：可以临时充当内存，但速度不如内存
 
 
 
-### 4、虚拟机的克隆、快照、删除和迁移
+### 虚拟机的克隆、快照、删除和迁移
 
 快照主要用于恢复之前的状态，防止错误操作导致系统异常。
 
@@ -40,7 +40,7 @@ swap分区作用：可以临时充当内存，但速度不如内存
 
 
 
-### 5、linux目录结构
+### linux目录结构
 
 <img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210707202136777.png" alt="image-20210707202136777" style="zoom:50%;" />
 
@@ -86,19 +86,43 @@ linux下一切皆为文件！
 
 /lost+found：系统非法关机后存放的文件
 
+
+
+---
+
+
+
 ## 二、指令
 
 * 解压：`tar -zxvf filename.tar.gz`
-
 * 创建用户：`useradd usr`
-
 * 删除用户：`userdel -r usr`
 
 
 
+### 创建screen会话(*)
 
+远程服务器的时候，断网或者手误关掉了远程终端，会导致会话中断，程序终止。
+而Screen连接的终端，会话独立运行，程序会一直进行。而且会话可以恢复，还可以自行删除。
 
+##### 常用命令
 
+```shell
+screen -S yourname           # 新建一个叫yourname的session
+screen -ls                   # 列出当前所有的session
+screen -r yourname           # 回到yourname这个session
+screen -d yourname           # 远程detach某个session    # detach快捷键 ctrl a + d
+screen -d -r yourname        # 结束当前session并回到yourname这个session
+screen -S yourname -X quit   # 删除叫yourname的session
+screen -wipe 				 # 清除dead的会话
+screen -x					 # 用于会话窗口的共享，比如多台主机连接到该服务器用户端，可以同时共享输出结果
+```
+
+##### 注意点
+
+* 创建screen会话首先需要切换到ssh会话，然后cd都需要运行的路径。
+* 如果遇到无法screen -r的情况，需要首先screen -d
+* 如果一个Screen会话中最后一个窗口被关闭了，那么整个Screen会话也就退出了，screen进程会被终止
 
 
 
