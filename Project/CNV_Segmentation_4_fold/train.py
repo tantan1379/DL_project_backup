@@ -1,229 +1,234 @@
+'''
+@File    :   train.py
+@Time    :   2021/08/12 10:23:52
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+'''
+
+# 库函数
 import argparse
-# from torch.utils.data import Dataset
-from torch.utils.data import DataLoader
-from dataset.CNV_AND_SRF import CNV_AND_SRF
-import socket
-from datetime import datetime
-import os
-from model.unet import UNet
-from model.resunet_attention import ResUnetPlusPlus
 import torch
+import os
+import socket
+from torch.utils.data import DataLoader
+from datetime import datetime
 from tensorboardX import SummaryWriter
-import tqdm
 import torch.nn as nn
 from torch.nn import functional as F
 import numpy as np
 from PIL import Image
-# from utils import poly_lr_scheduler
-# from utils import reverse_one_hot, get_label_info, colour_code_segmentation, compute_global_accuracy,batch_intersection_union,batch_pix_accuracy
+import torch.backends.cudnn as cudnn
+# 内部函数
+from dataset import CNV
 import utils.progress_bar as pb
 import utils.utils as u
 import utils.loss as LS
-from utils.config import DefaultConfig
-import torch.backends.cudnn as cudnn
+from config import cnv_single_config
+from models.net_builder import net_builder
 
 
-def val(args, model, dataloader, k_fold, epoch):
+def val(args, model, dataloader, fold):
+    result_path = args.result_path
+    if not os.path.exists(result_path+os.sep+'f1'):
+        os.makedirs(result_path+os.sep+'f1')
+    if not os.path.exists(result_path+os.sep+'f2'):
+        os.makedirs(result_path+os.sep+'f2')
+    if not os.path.exists(result_path+os.sep+'f3'):
+        os.makedirs(result_path+os.sep+'f3')
+    if not os.path.exists(result_path+os.sep+'f4'):
+        os.makedirs(result_path+os.sep+'f4')
+
     with torch.no_grad():
         model.eval()
-        Dice_m = u.AverageMeter()
-        Acc_m = u.AverageMeter()
-        jaccard_m = u.AverageMeter()
-        Sensitivity_m = u.AverageMeter()
-        Specificity_m = u.AverageMeter()
-        eval_progressor = pb.Val_ProgressBar(
-            mode='val', epoch=epoch+1, fold=k_fold, model_name=args.net_work, net_index=args.net_index, total=len(dataloader))
-        for i, (data, label) in enumerate(dataloader):
-            eval_progressor.current = i
+        val_progressor = pb.Val_ProgressBar(save_model_path=args.save_model_path,total=len(dataloader)) # 验证进度条，用于显示指标
+
+        total_Dice = []
+        total_jaccard = []
+        total_Sensitivity = []
+        total_Specificity = []
+
+        for i, (data, (label,label_path)) in enumerate(dataloader):
+            val_progressor.current = i
             if torch.cuda.is_available() and args.use_gpu:
                 data = data.cuda()
                 label = label.cuda()
-            aux_predict, predict = model(data)
-            # 获取评价指标
-            Dice, Acc, jaccard, Sensitivity, Specificity = u.eval_single_seg(
-                predict, label)
-            Dice_m.update(Dice)
-            Acc_m.update(Acc)
-            jaccard_m.update(jaccard)
-            Sensitivity_m.update(Sensitivity)
-            Specificity_m.update(Specificity)
-            dice, acc, jac, sen, spe = Dice_m.avg, Acc_m.avg, jaccard_m.avg, Sensitivity_m.avg, Specificity_m.avg
-            eval_progressor.val = [dice, acc, jac, sen, spe]
-            # 更新进度条
-            eval_progressor()
 
-        eval_progressor.done()
-        # print('Dice:', dice)
-        # print('Acc:', acc)
-        # print('Jac:', jac)
-        # print('Sen:', sen)
-        # print('Spe:', spe)
-        return dice, acc, jac, sen, spe
+            # get RGB predict image
+            predict = model(data)
+
+            # save segment result
+            predict_seg = torch.round(predict).byte()
+            predict_seg = predict_seg.data.cpu().numpy().squeeze()*255
+            img = Image.fromarray(predict_seg,mode='L')
+            label_name = label_path[0].split(os.sep)[-1]
+            img.save(os.path.join(args.result_path,'f'+str(fold),label_name))
+
+            # verify the model
+            Dice, jaccard, Sensitivity, Specificity = u.eval_single_seg(predict, label) # 每个指标返回的是batchsize长的列表
+            # 将每个batch的列表相加，在迭代中动态显示指标的平均值
+            total_Dice += Dice
+            total_jaccard += jaccard
+            total_Sensitivity += Sensitivity
+            total_Specificity += Specificity
+            # 表示对batchsize个值取平均，len=batchsize
+            dice = sum(total_Dice) / len(total_Dice)
+            jac = sum(total_jaccard) / len(total_jaccard)
+            sen = sum(total_Sensitivity) / len(total_Sensitivity)
+            spe = sum(total_Specificity) / len(total_Specificity)
+            val_progressor.val=[dice,jac,sen,spe]
+            val_progressor()    
+        val_progressor.done()
+        return dice, jac, sen, spe
 
 
-def train(args, model, optimizer, criterion, dataloader_train, dataloader_val, writer, k_fold):
-    best_pred, best_acc, best_jac, best_sen, best_spe = 0.0, 0.0, 0.0, 0.0, 0.0
+def train(args, model, optimizer, criterion, train_dataloader, val_dataloader, writer, k_fold):
+    best_pred = 0.0
     best_epoch = 0
-    step = 0
-    train_loss = u.AverageMeter()
-    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-    with open("./logs/%s_%s.txt" % (args.net_work, args.net_index), "a") as f:
-        print(current_time, file=f)
+    end_epoch = None # 可以设为1，用于直接进入test过程，检查bug
+    step = 0         # tensorboard相关
+    end_index = None # 可以设为1，用于直接进入val过程，检查bug
+    train_start_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    with open("%s.txt" % args.save_model_path, "a") as f:
+        print(train_start_time, file=f)
     for epoch in range(args.num_epochs):
-        train_progressor = pb.Train_ProgressBar(mode='train', fold=k_fold, epoch=epoch, total_epoch=args.num_epochs,
-                                                model_name=args.net_work, total=len(dataloader_train)*args.batch_size)
-        lr = u.adjust_learning_rate(args, optimizer, epoch)
+        if(epoch==end_epoch):
+            break
+        loss_record = []
+        train_loss = u.AverageMeter() # 滑动平均
+        train_progressor = pb.Train_ProgressBar(mode='train', epoch=epoch, total_epoch=args.num_epochs, fold=k_fold,
+            save_model_path=args.save_model_path, total=len(train_dataloader)*args.batch_size) # train进度条，用于显示loss和lr
+        lr = u.adjust_learning_rate(args, optimizer, epoch) # 自动调节学习率
         model.train()
 
-        for i, (data, label) in enumerate(dataloader_train):
+        for i, (data, label) in enumerate(train_dataloader):
+            if i==end_index:
+                break
             train_progressor.current = i*args.batch_size
+
             if torch.cuda.is_available() and args.use_gpu:
                 data = data.cuda()
                 label = label.cuda()
-            main_out = model(data)
-            # get weight_map
-            weight_map = torch.zeros(args.num_classes).cuda()
-            for t in range(args.num_classes):
-                weight_map[t] = 1/(torch.sum((label == t).float())+1.0)
-            loss_aux = F.binary_cross_entropy_with_logits(
-                main_out, label, weight=None)
-            loss_main = criterion[1](main_out, label)
+
+            output = model(data)
+
+            loss_aux = criterion[0](output, label) # criterion[0]=BCELoss
+            loss_main = criterion[1](output, label) # criterion[1]=DiceLoss
+            
             loss = loss_main + loss_aux
-            train_loss.update(loss.item(), data.size(0))
+
+            train_loss.update(loss.item(), data.size(0)) # loss.item()表示去除张量的元素值，data.size()表示batchsize
             train_progressor.current_loss = train_loss.avg
             train_progressor.current_lr = lr
-            optimizer.zero_grad()
-            loss.backward()
-            optimizer.step()
-            train_progressor()
+
+            optimizer.zero_grad() # 梯度清零
+            loss.backward() # 反向传播
+            optimizer.step() # 梯度更新
+
+            train_progressor() # 显示进度条
+
             step += 1
             if step % 10 == 0:
-                writer.add_scalar(
-                    'Train/loss_step_{}'.format(int(k_fold)), loss,step)
-        train_progressor.done()
-        writer.add_scalar(
-            'Train/loss_epoch_{}'.format(int(k_fold)), float(train_loss.avg), epoch)
-        Dice, Acc, jaccard, Sensitivity, Specificity = val(
-            args, model, dataloader_val, k_fold, epoch)
-        writer.add_scalar(
-            'Valid/Dice_val_{}'.format(int(k_fold)), Dice, epoch)
-        writer.add_scalar(
-            'Valid/Acc_val_{}'.format(int(k_fold)), Acc, epoch)
-        writer.add_scalar(
-            'Valid/Jac_val_{}'.format(int(k_fold)), jaccard, epoch)
-        writer.add_scalar(
-            'Valid/Sen_val_{}'.format(int(k_fold)), Sensitivity, epoch)
-        writer.add_scalar(
-            'Valid/Spe_val_{}'.format(int(k_fold)), Specificity, epoch)
+                writer.add_scalar('Train/loss_step_{}'.format(int(k_fold)), loss, step)
+            loss_record.append(loss.item())
+
+        train_progressor.done() # 输出logs
+        writer.add_scalar('Train/loss_epoch_{}'.format(int(k_fold)), float(train_loss.avg), epoch)
+        Dice, jaccard, Sensitivity, Specificity = val(args, model, val_dataloader,k_fold)
+        writer.add_scalar('Valid/Dice_val_{}'.format(int(k_fold)), Dice, epoch)
+        writer.add_scalar('Valid/Jac_val_{}'.format(int(k_fold)), jaccard, epoch)
+        writer.add_scalar('Valid/Sen_val_{}'.format(int(k_fold)), Sensitivity, epoch)
+        writer.add_scalar('Valid/Spe_val_{}'.format(int(k_fold)), Specificity, epoch)
 
         is_best = Dice > best_pred
         if is_best:
-            best_pred = max(best_pred, Dice)
-            best_jac = max(best_jac, jaccard)
-            best_acc = max(best_acc, Acc)
-            best_sen = max(best_sen, Sensitivity)
-            best_spe = max(best_spe, Specificity)
-            best_epoch = epoch+1
-        checkpoint_dir = os.path.join(args.save_model_path, str(k_fold))
+            best_pred = Dice
+            best_jac = jaccard
+            best_sen = Sensitivity
+            best_spe = Specificity
+            best_epoch = epoch + 1
+        checkpoint_dir = os.path.join('./checkpoints',args.net_work,str(k_fold))
         if not os.path.exists(checkpoint_dir):
             os.makedirs(checkpoint_dir)
-        checkpoint_latest_name = os.path.join(
-            checkpoint_dir, 'checkpoint_latest.path.tar')
+
+        checkpoint_latest_name = os.path.join(checkpoint_dir,'checkpoint_latest.pth.tar') # 保存最新的一个checkpoint用于中继训练
         u.save_checkpoint({
-            'epoch': epoch+1,
+            'epoch': best_epoch,
             'state_dict': model.state_dict(),
             'best_dice': best_pred
-        }, best_pred, epoch, is_best, checkpoint_dir, filename=checkpoint_latest_name)
+        }, best_pred, epoch, is_best, checkpoint_dir, filename=checkpoint_latest_name) # 保存最好的
     # 记录该折分割效果最好一次epoch的所有参数
-    best_indicator_message = "f{} best pred in Epoch:{}\nDice={} Accuracy={} jaccard={} Sensitivity={} Specificity={}".format(
-        k_fold, best_epoch,best_pred,best_acc, best_jac, best_sen, best_spe)
-    with open("./logs/%s_%s_best_indicator.txt" % (args.net_work, args.net_index), mode='a') as f:
-        print(best_indicator_message,file=f)
+    best_indicator_message = "best pred in Epoch:{}\nMetric: Dice jaccard Sensitivity Specificity\n{:.4f}\t{:.4f}\t{:.4f}\t{:.4f}".format(
+        best_epoch, best_pred, best_jac, best_sen, best_spe)
+    test_start_time = datetime.now().strftime('%b%d %H:%M:%S')
+    with open("%s_test_indicator.txt" % args.save_model_path, mode='a') as f:
+        print("fold {}".format(k_fold), file=f)
+        print(best_indicator_message, file=f)
+    para = best_pred, best_jac, best_sen, best_spe
+    return para
 
 
-def eval(model, dataloader, args):
-    print('start test!')
-    with torch.no_grad():
-        model.eval()
-        tq = tqdm.tqdm(total=len(dataloader)*args.batch_size)
-        tq.set_description('test')
-        comments = os.getcwd().split(os.sep)[-1]
-        for i, (data, label_path) in enumerate(dataloader):
-            tq.update(args.batch_size)
-            if torch.cuda.is_available() and args.use_gpu:
-                data = data.cuda()
-            aux_pred, predict = model(data)
-            predict = torch.round(torch.sigmoid(aux_pred)).byte()
-            pred_seg = predict.data.cpu().numpy() * 255
-
-            for index, item in enumerate(label_path):
-                save_img_path = label_path[index].replace(
-                    'mask', comments+'_mask')
-                if not os.path.exists(os.path.dirname(save_img_path)):
-                    os.makedirs(os.path.dirname(save_img_path))
-                img = Image.fromarray(pred_seg[index].squeeze(), mode='L')
-                img.save(save_img_path)
-                tq.set_postfix(str=str(save_img_path))
-        tq.close()
-
-
-def main(mode='train', args=None, writer=None, k_fold=1):
+def main(args=None, writer=None, k_fold=1):
     # create dataset and dataloader
     dataset_path = os.path.join(args.data, args.dataset)
-    dataset_train = CNV_AND_SRF(dataset_path, scale=(
-        args.crop_height, args.crop_width), k_fold_test=k_fold, mode='train')
-    dataloader_train = DataLoader(dataset_train, batch_size=args.batch_size,
-                                  shuffle=True, num_workers=args.num_workers, pin_memory=True, drop_last=True)
-    dataset_val = CNV_AND_SRF(dataset_path, scale=(
-        args.crop_height, args.crop_width), k_fold_test=k_fold, mode='val')
-    dataloader_val = DataLoader(dataset_val, batch_size=1, shuffle=True,
-                                num_workers=args.num_workers, pin_memory=True, drop_last=True)
-    dataset_test = CNV_AND_SRF(dataset_path, scale=(
-        args.crop_height, args.crop_width), k_fold_test=k_fold, mode='test')
-    dataloader_test = DataLoader(dataset_test, batch_size=1, shuffle=True,
-                                 num_workers=args.num_workers, pin_memory=True, drop_last=True)
-    # build model
+    dataset_train = CNV(dataset_path, scale=(args.crop_height, args.crop_width), k_fold_test=k_fold, mode='train')
+    dataloader_train = DataLoader(
+        dataset_train, 
+        batch_size=args.batch_size,
+        shuffle=True, 
+        num_workers=args.num_workers, 
+        pin_memory=True, 
+        drop_last=False)
+    dataset_val = CNV(dataset_path, scale=(args.crop_height, args.crop_width), k_fold_test=k_fold, mode='val')
+    dataloader_val = DataLoader(
+        dataset_val, 
+        batch_size=1, 
+        shuffle=True,
+        num_workers=args.num_workers,
+        pin_memory=True,
+        drop_last=False)
+    
+    # 模型
     os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda
-    # load model
-    model_all = {'UNet': UNet(
-        in_channels=args.input_channel, n_classes=args.num_classes),'ResUnetPlusPlus':ResUnetPlusPlus(channel=args.input_channel)}
-    model = model_all[args.net_work].cuda()
+    model = net_builder(name=args.net_work, in_channels=1, n_class=args.num_classes).cuda()
     cudnn.benchmark = True
-    # if torch.cuda.is_available() and args.use_gpu:
-    #     model = torch.nn.DataParallel(model).cuda()
-    if args.pretrained_model_path and model == 'test':
-        print("=> loading pretrained model '{}'".format(
-            args.pretrained_model_path))
-        checkpoint = torch.load(args.pretrained_model_path)
-        model.load_state_dict(checkpoint['state_dict'])
-        print('Done!')
-    optimizer = torch.optim.SGD(model.parameters(
-    ), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
-    criterion_aux = nn.BCEWithLogitsLoss(weight=None)
+    # 优化器
+    optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
+    # 损失函数
+    criterion_aux = nn.BCELoss()
     criterion_main = LS.DiceLoss()
     criterion = [criterion_aux, criterion_main]
-    if mode == 'train':  # 交叉验证
-        train(args, model, optimizer, criterion,
-              dataloader_train, dataloader_val, writer, k_fold)
-    if mode == 'test':  # 单独使用测试集
-        eval(model, dataloader_test, args)
+
+    para = train(args, model, optimizer, criterion, dataloader_train, dataloader_val, writer, k_fold)
+
+    return para
 
 
 if __name__ == "__main__":
     seed = 2021
     torch.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
-    args = DefaultConfig()
-    modes = args.mode
+    args = cnv_single_config()
 
-    if modes == 'train':
-        comments = os.getcwd().split(os.sep)[-1]
-        current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-        log_dir = os.path.join(args.log_dirs, comments +
-                               '_' + current_time + '_' + socket.gethostname())
-        # print(log_dir)
-        writer = SummaryWriter(log_dir=log_dir)
-        for i in range(args.start_fold-1,args.k_fold):
-            main(mode='train', args=args, writer=writer, k_fold=int(i + 1))
-    elif modes == 'test':
-        main(mode='test', args=args, writer=None, k_fold=args.test_fold)
+    dice_4_fold = list()
+    jac_4_fold = list()
+    sen_4_fold = list()
+    spe_4_fold = list()
+    comments = os.getcwd().split(os.sep)[-1]
+    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    log_dir = os.path.join(args.log_dirs, args.net_work + '_' + current_time + '_' + socket.gethostname())
+    writer = SummaryWriter(log_dir=log_dir)
+    
+    for i in range(args.k_fold):
+        para = main(args=args, writer=writer, k_fold=int(i + 1))
+        dice_4_fold.append(para[0])
+        jac_4_fold.append(para[1])
+        sen_4_fold.append(para[2])
+        spe_4_fold.append(para[3])
+    print("Train Finished!\n\nAverage Metric: \nDice={:.4f}±{:.4f}\njaccard={:.4f}±{:.4f}\nSensitivity={:.4f}±{:.4f}\nSpecificity={:.4f}±{:.4f}".format(
+            np.mean(dice_4_fold),np.std(dice_4_fold),np.mean(jac_4_fold),np.std(jac_4_fold),np.mean(sen_4_fold),np.std(sen_4_fold),np.mean(spe_4_fold),np.std(spe_4_fold)))
+    with open("%s_test_indicator.txt" % args.save_model_path, mode='a') as f:
+        print("\n\nAverage Metric: \nDice jaccard Sensitivity Specificity\n{:.4f}±{:.4f}\t{:.4f}±{:.4f}\t{:.4f}±{:.4f}\t{:.4f}±{:.4f}".format(
+            np.mean(dice_4_fold),np.std(dice_4_fold),np.mean(jac_4_fold),np.std(jac_4_fold),np.mean(sen_4_fold),np.std(sen_4_fold),np.mean(spe_4_fold),np.std(spe_4_fold)), file=f)
+

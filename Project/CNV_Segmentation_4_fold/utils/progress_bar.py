@@ -1,12 +1,24 @@
+'''
+@File    :   progress_bar.py
+@Time    :   2021/06/07 16:24:50
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+'''
+
+# here put the import lib
 import sys
 import re
 from datetime import datetime
 
+# 进度条
 
+# 用于单目标和多目标的训练，动态显示loss和learning rate
 class Train_ProgressBar(object):
     DEFAULT = "Progress: %(bar)s %(percent)3d%%"
 
-    def __init__(self, mode='train', fold=None, epoch=None, total_epoch=None, current_loss=None, current_lr=0, model_name=None, net_index=None, total=None, current=None, width=80, symbol=">", output=sys.stderr):
+    def __init__(self, mode='train', epoch=None, total_epoch=None, fold=None, current_loss=None, current_lr=0, save_model_path=None, total=None, current=None, width=70, symbol=">", output=sys.stderr):
         assert len(symbol) == 1
         self.mode = mode    # 文字显示模式
         self.total = total  # batch数量
@@ -15,23 +27,19 @@ class Train_ProgressBar(object):
         self.width = width  # bar长度，默认为80
         self.current = current  # 记录当前的batch数
         self.epoch = epoch  # 记录当前的epoch
-        self.total_epoch = total_epoch  # 输入的总epoch数
-        self.current_loss = current_loss  # 输入记录的当前loss
-        self.model_name = model_name  # 网络名
-        self.current_lr = current_lr  # 记录当前的学习率
         self.fold = fold
-        # current_time = datetime.now().strftime('%b%d_%H-%M-%S')
-        # with open("./logs/train/%s_%s.txt" % (self.model_name, self.net_index), "a") as f:
-        #     print(current_time, file=f)
-        #     print("fold:"+fold,file=f)
+        self.total_epoch = total_epoch  # 输入的总epoch数
+        self.save_model_path = save_model_path  # 网络名
+        self.current_loss = current_loss  # 输入记录的当前loss
+        self.current_lr = current_lr  # 记录当前的学习率
 
+    # 每个iter调用一次，动态显示
     def __call__(self):
         percent = self.current / float(self.total)
         size = int(self.width * percent)
         bar = "[" + self.symbol * size + " " * (self.width - size) + "]"
 
         args = {
-            "fold": self.fold,
             "mode": self.mode,
             "total": self.total,
             "bar": bar,
@@ -40,65 +48,309 @@ class Train_ProgressBar(object):
             "current_loss": self.current_loss,
             "epoch": self.epoch + 1,
             "epochs": self.total_epoch,
+            "fold": self.fold,
             "current_lr": self.current_lr
         }
-        message = "\033[1;32;40mfold:%(fold)d %(mode)s  Epoch: %(epoch)d/%(epochs)d %(bar)s\033[0m  [ Loss %(current_loss)f lr: %(current_lr)f ]  %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
-        # self.write_message = "fold:%(fold)d  Epoch: %(epoch)d/%(epochs)d [ Current: Loss %(current_loss)f lr: %(current_lr)f ]" % args
+        message = "\033[1;32;40mfold %(fold)d %(mode)s Epoch: %(epoch)d/%(epochs)d %(bar)s\033[0m  [ Loss %(current_loss)f lr: %(current_lr)f ]  %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
+        self.train_write_message = "fold %(fold)d Epoch: %(epoch)d/%(epochs)d [ Current: Loss %(current_loss)f lr: %(current_lr)f ]" % args
         print("\r" + message, file=self.output, end="")
 
+    # 每个epoch结束时调用一次，用于保存数据
     def done(self):
-        self.current = self.total
+        self.current = self.total # 拉满进度条
         self()
         print("", file=self.output)
         # # 向logs输出当前的结果
-        # with open("./logs/train/%s_%s.txt" % (self.model_name,self.net_index), "a") as f:
-        #     print(self.write_message, file=f)
+        with open("%s.txt" % self.save_model_path, "a") as f:
+            print(self.train_write_message, file=f)
 
 
+# 用于cnv单目标分割的验证
 class Val_ProgressBar(object):
-    def __init__(self, mode='val', fold=None, epoch=None, model_name=None, net_index=None,  total=None, current=None, width=29, symbol=">", output=sys.stderr):
+    def __init__(self, mode='val', save_model_path=None, total=None, current=None, width=29, symbol=">", output=sys.stderr):
         assert len(symbol) == 1
         self.mode = mode  # 文字显示模式
-        self.fold = fold  # 当前折数
         self.total = total  # batch数量
         self.symbol = symbol  # bar显示符号，默认为<
         self.output = output  # 文件输出方式
         self.width = width  # bar长度
         self.current = current  # 记录当前的batch数
-        self.model_name = model_name  # 网络名
-        self.val = [0.0]*5
-        self.epoch = epoch
-        self.net_index = net_index
+        self.save_model_path = save_model_path  # 网络名
+        self.val = [0.]*4
 
-
+    # 每个iter调用一次，动态显示
     def __call__(self):
         percent = self.current / float(self.total)
         size = int(self.width * percent)
         bar = "[" + self.symbol * size + " " * (self.width - size) + "]"
 
         args = {
-            "fold": self.fold,
-            "epoch": self.epoch,
             "mode": self.mode,
             "total": self.total,
             "bar": bar,
             "current": self.current,
             "percent": percent * 100,
             "dice": self.val[0],
-            "precision": self.val[1],
-            "jaccard": self.val[2],
-            "sensitivity": self.val[3],
-            "specificity": self.val[4]
+            "jaccard": self.val[1],
+            "sensitivity": self.val[2],
+            "specificity": self.val[3]
         }
-        message = "\033[1;32;40mfold:%(fold)d %(mode)s  %(bar)s\033[0m  [ Dice:%(dice)f Precision:%(precision)f Jaccard:%(jaccard)f Sensitivity:%(sensitivity)f Specificity:%(specificity)f ]  %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
-        self.write_message = "fold:%(fold)d epoch:%(epoch)d   Dice:%(dice)f Precision:%(precision)f Jaccard:%(jaccard)f Sensitivity:%(sensitivity)f Specificity:%(specificity)f" % args
+        message = "\033[1;32;40m%(mode)s  %(bar)s\033[0m  [ Dice:%(dice)f Jaccard:%(jaccard)f Sensitivity:%(sensitivity)f Specificity:%(specificity)f ]  %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
+        self.write_message = "Metric: Dice:%(dice)f Jaccard:%(jaccard)f Sensitivity:%(sensitivity)f Specificity:%(specificity)f" % args
         print("\r" + message, file=self.output, end="")
 
+    # 每个epoch结束时调用一次，用于保存数据
     def done(self):
         self.current = self.total
         self()
         print("", file=self.output)
-        print("")
         # # 向logs输出当前的结果
-        with open("./logs/%s_%s.txt" % (self.model_name, self.net_index), "a") as f:
+        with open("%s.txt" % self.save_model_path, "a") as f:
             print(self.write_message, file=f)
+
+
+# 用于cnv单目标分割的测试            
+# class Test_ProgressBar(object):
+    # def __init__(self, mode='test', total=None,save_model_path=None,current=None, width=29, symbol=">", output=sys.stderr):
+    #     assert len(symbol) == 1
+    #     self.mode = mode  # 文字显示模式
+    #     self.total = total  # batch数量
+    #     self.symbol = symbol  # bar显示符号，默认为<
+    #     self.output = output  # 文件输出方式
+    #     self.width = width  # bar长度
+    #     self.current = current  # 记录当前的batch数
+    #     self.val = [0.0]*5
+    #     self.save_model_path = save_model_path  # 网络名
+
+    # def __call__(self):
+    #     percent = self.current / float(self.total)
+    #     size = int(self.width * percent)
+    #     bar = "[" + self.symbol * size + " " * (self.width - size) + "]"
+
+    #     args = {
+    #         "mode": self.mode,
+    #         "total": self.total,
+    #         "bar": bar,
+    #         "current": self.current,
+    #         "percent": percent * 100,
+    #         "dice": self.val[0],
+    #         "precision": self.val[1],
+    #         "jaccard": self.val[2],
+    #         "sensitivity": self.val[3],
+    #         "specificity": self.val[4]
+    #     }
+    #     message = "\033[1;32;40m%(mode)s  %(bar)s\033[0m  [ Dice:%(dice)f Precision:%(precision)f Jaccard:%(jaccard)f Sensitivity:%(sensitivity)f Specificity:%(specificity)f ]  %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
+    #     self.write_message = "Metric: Dice Precision jaccard Sensitivity Specificity\n%(dice)f\t%(precision)f\t%(jaccard)f\t%(sensitivity)f\t%(specificity)f" % args
+    #     print("\r" + message, file=self.output, end="")
+
+    # def done(self):
+    #     self.current = self.total # 保证进度条进行完
+    #     self()
+    #     print("", file=self.output)
+    #     print("")
+    #     # 向logs输出当前的结果
+    #     with open("./logs/%s_test_indicator.txt" % self.save_model_path, "a") as f:
+    #         print("Test Result:",file=f)
+    #         print(self.write_message, file=f)
+
+# 用于三类分割的验证
+# class Val_ProgressBar_2(object):
+    # def __init__(self, mode='val', save_model_path=None, total=None, current=None, width=29, symbol=">", output=sys.stderr):
+    #     assert len(symbol) == 1
+    #     self.mode = mode  # 文字显示模式
+    #     self.total = total  # batch数量
+    #     self.symbol = symbol  # bar显示符号，默认为<
+    #     self.output = output  # 文件输出方式
+    #     self.width = width  # bar长度
+    #     self.current = current  # 记录当前的batch数
+    #     self.save_model_path = save_model_path  # 网络名
+    #     self.val = [(0.,0.)]*5
+
+
+    # def __call__(self):
+    #     percent = self.current / float(self.total)
+    #     size = int(self.width * percent)
+    #     bar = "[" + self.symbol * size + " " * (self.width - size) + "]"
+
+    #     args = {
+    #         "mode": self.mode,
+    #         "total": self.total,
+    #         "bar": bar,
+    #         "current": self.current,
+    #         "percent": percent * 100,
+    #         "srf_dice": self.val[0][0],
+    #         "srf_accuracy": self.val[1][0],
+    #         "srf_jaccard": self.val[2][0],
+    #         "srf_sensitivity": self.val[3][0],
+    #         "srf_specificity": self.val[4][0],
+    #         "cnv_dice": self.val[0][1],
+    #         "cnv_accuracy": self.val[1][1],
+    #         "cnv_jaccard": self.val[2][1],
+    #         "cnv_sensitivity": self.val[3][1],
+    #         "cnv_specificity": self.val[4][1],
+    #         "avg_dice": (self.val[0][0]+self.val[0][1])/2,
+    #         "avg_accuracy": (self.val[1][0]+self.val[1][1])/2,
+    #         "avg_jaccard": (self.val[2][0]+self.val[2][1])/2,
+    #         "avg_sensitivity": (self.val[3][0]+self.val[3][1])/2,
+    #         "avg_specificity": (self.val[4][0]+self.val[4][1])/2,
+    #     }
+    #     message = "\033[1;32;40m%(mode)s  %(bar)s\033[0m Average Metirc: [ Dice:%(avg_dice)f Accuracy:%(avg_accuracy)f Sensitivity:%(avg_sensitivity)f Specificity:%(avg_specificity)f ] %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
+                     
+    #     self.write_message = "Metric for CNV: [ Dice:%(cnv_dice)f Accuracy:%(cnv_accuracy)f Jaccard:%(cnv_jaccard)f Sensitivity:%(cnv_sensitivity)f Specificity:%(cnv_specificity)f ]\
+    #           \nMetric for SRF: [ Dice:%(srf_dice)f Accuracy:%(srf_accuracy)f Jaccard:%(srf_jaccard)f Sensitivity:%(srf_sensitivity)f Specificity:%(srf_specificity)f ]\n \
+    #           \nAverage Metirc: [ Dice:%(avg_dice)f Accuracy:%(avg_accuracy)f Jaccard:%(avg_jaccard)f Sensitivity:%(avg_sensitivity)f Specificity:%(avg_specificity)f ]" % args
+    #     print("\r" + message, file=self.output, end="")
+
+    # def done(self):
+        
+    #     args = {
+    #         "srf_dice": self.val[0][0],
+    #         "srf_accuracy": self.val[1][0],
+    #         "srf_jaccard": self.val[2][0],
+    #         "srf_sensitivity": self.val[3][0],
+    #         "srf_specificity": self.val[4][0],
+    #         "cnv_dice": self.val[0][1],
+    #         "cnv_accuracy": self.val[1][1],
+    #         "cnv_jaccard": self.val[2][1],
+    #         "cnv_sensitivity": self.val[3][1],
+    #         "cnv_specificity": self.val[4][1],
+    #         "avg_dice": (self.val[0][0]+self.val[0][1])/2,
+    #         "avg_accuracy": (self.val[1][0]+self.val[1][1])/2,
+    #         "avg_jaccard": (self.val[2][0]+self.val[2][1])/2,
+    #         "avg_sensitivity": (self.val[3][0]+self.val[3][1])/2,
+    #         "avg_specificity": (self.val[4][0]+self.val[4][1])/2,
+    #     }
+    #     self.current = self.total
+    #     self()
+    #     print("\nMetric for CNV: [ Dice:%(cnv_dice)f Accuracy:%(cnv_accuracy)f Jaccard:%(cnv_jaccard)f Sensitivity:%(cnv_sensitivity)f Specificity:%(cnv_specificity)f ]\
+    #           \nMetric for SRF: [ Dice:%(srf_dice)f Accuracy:%(srf_accuracy)f Jaccard:%(srf_jaccard)f Sensitivity:%(srf_sensitivity)f Specificity:%(srf_specificity)f ]\n"% args)
+    #     print("", file=self.output)
+    #     # # 向logs输出当前的结果
+    #     with open("./logs/%s.txt" % self.save_model_path, "a") as f:
+    #         print(self.write_message, file=f)
+
+
+# class Test_ProgressBar_2(object):
+    # def __init__(self, mode='val', save_model_path=None, total=None, current=None, width=29, symbol=">", output=sys.stderr):
+    #     assert len(symbol) == 1
+    #     self.mode = mode  # 文字显示模式
+    #     self.total = total  # batch数量
+    #     self.symbol = symbol  # bar显示符号，默认为<
+    #     self.output = output  # 文件输出方式
+    #     self.width = width  # bar长度
+    #     self.current = current  # 记录当前的batch数
+    #     self.save_model_path = save_model_path  # 网络名
+    #     self.val = [(0.,0.)]*5
+
+
+    # def __call__(self):
+    #     percent = self.current / float(self.total)
+    #     size = int(self.width * percent)
+    #     bar = "[" + self.symbol * size + " " * (self.width - size) + "]"
+    #     args = {
+    #         "mode": self.mode,
+    #         "total": self.total,
+    #         "bar": bar,
+    #         "current": self.current,
+    #         "percent": percent * 100,
+    #         "srf_dice": self.val[0][0],
+    #         "srf_accuracy": self.val[1][0],
+    #         "srf_jaccard": self.val[2][0],
+    #         "srf_sensitivity": self.val[3][0],
+    #         "srf_specificity": self.val[4][0],
+    #         "cnv_dice": self.val[0][1],
+    #         "cnv_accuracy": self.val[1][1],
+    #         "cnv_jaccard": self.val[2][1],
+    #         "cnv_sensitivity": self.val[3][1],
+    #         "cnv_specificity": self.val[4][1],
+    #         "avg_dice": (self.val[0][0]+self.val[0][1])/2,
+    #         "avg_accuracy": (self.val[1][0]+self.val[1][1])/2,
+    #         "avg_jaccard": (self.val[2][0]+self.val[2][1])/2,
+    #         "avg_sensitivity": (self.val[3][0]+self.val[3][1])/2,
+    #         "avg_specificity": (self.val[4][0]+self.val[4][1])/2,
+    #     }
+    #     message = "\033[1;32;40m%(mode)s  %(bar)s\033[0m Average Metirc: [ Dice:%(avg_dice)f Accuracy:%(avg_accuracy)f Sensitivity:%(avg_sensitivity)f Specificity:%(avg_specificity)f ] %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
+                     
+    #     self.write_message = "Metric for CNV: [ Dice:%(cnv_dice)f Accuracy:%(cnv_accuracy)f Jaccard:%(cnv_jaccard)f Sensitivity:%(cnv_sensitivity)f Specificity:%(cnv_specificity)f ]\
+    #           \nMetric for SRF: [ Dice:%(srf_dice)f Accuracy:%(srf_accuracy)f Jaccard:%(srf_jaccard)f Sensitivity:%(srf_sensitivity)f Specificity:%(srf_specificity)f ]\
+    #           \nAverage Metirc: [ Dice:%(avg_dice)f Accuracy:%(avg_accuracy)f Jaccard:%(avg_jaccard)f Sensitivity:%(avg_sensitivity)f Specificity:%(avg_specificity)f ]\n" % args
+    #     print("\r" + message, file=self.output, end="")
+
+    # def done(self):
+    #     args = {
+    #         "srf_dice": self.val[0][0],
+    #         "srf_accuracy": self.val[1][0],
+    #         "srf_jaccard": self.val[2][0],
+    #         "srf_sensitivity": self.val[3][0],
+    #         "srf_specificity": self.val[4][0],
+    #         "cnv_dice": self.val[0][1],
+    #         "cnv_accuracy": self.val[1][1],
+    #         "cnv_jaccard": self.val[2][1],
+    #         "cnv_sensitivity": self.val[3][1],
+    #         "cnv_specificity": self.val[4][1],
+    #         "avg_dice": (self.val[0][0]+self.val[0][1])/2,
+    #         "avg_accuracy": (self.val[1][0]+self.val[1][1])/2,
+    #         "avg_jaccard": (self.val[2][0]+self.val[2][1])/2,
+    #         "avg_sensitivity": (self.val[3][0]+self.val[3][1])/2,
+    #         "avg_specificity": (self.val[4][0]+self.val[4][1])/2,
+    #     }
+    #     self.current = self.total
+    #     self()
+    #     print("\nMetric for CNV: [ Dice:%(cnv_dice)f Accuracy:%(cnv_accuracy)f Jaccard:%(cnv_jaccard)f Sensitivity:%(cnv_sensitivity)f Specificity:%(cnv_specificity)f ]\
+    #           \nMetric for SRF: [ Dice:%(srf_dice)f Accuracy:%(srf_accuracy)f Jaccard:%(srf_jaccard)f Sensitivity:%(srf_sensitivity)f Specificity:%(srf_specificity)f ]\n"% args)
+    #     print("", file=self.output)
+    #     # # 向logs输出当前的结果
+    #     with open("./logs/%s.txt" % self.save_model_path, "a") as f:
+    #         print(self.write_message, file=f)
+
+
+# class Val_ProgressBar_dice_only(object):
+    # def __init__(self, mode='val', save_model_path=None, total=None, current=None, width=29, symbol=">", output=sys.stderr):
+    #     assert len(symbol) == 1
+    #     self.mode = mode  # 文字显示模式
+    #     self.total = total  # batch数量
+    #     self.symbol = symbol  # bar显示符号，默认为<
+    #     self.output = output  # 文件输出方式
+    #     self.width = width  # bar长度
+    #     self.current = current  # 记录当前的batch数
+    #     self.save_model_path = save_model_path  # 网络名
+    #     self.val = [(0.,0.)]
+
+
+    # def __call__(self):
+    #     percent = self.current / float(self.total)
+    #     size = int(self.width * percent)
+    #     bar = "[" + self.symbol * size + " " * (self.width - size) + "]"
+
+    #     args = {
+    #         "mode": self.mode,
+    #         "total": self.total,
+    #         "bar": bar,
+    #         "current": self.current,
+    #         "percent": percent * 100,
+    #         "srf_dice": self.val[0],
+    #         "cnv_dice": self.val[1],
+    #         "avg_dice": (self.val[0]+self.val[1])/2,
+    #     }
+    #     message = "\033[1;32;40m%(mode)s  %(bar)s\033[0m Average Metirc: [ Dice:%(avg_dice)f ] %(current)d/%(total)d \033[1;32;40m[%(percent)3d%%]\033[0m" % args
+                     
+    #     self.write_message = "Metric for CNV: [ Dice:%(cnv_dice)f ] Metric for SRF: [ Dice:%(srf_dice)f ]\n \
+    #           \nAverage Metirc: [ Dice:%(avg_dice)f ]" % args
+    #     print("\r" + message, file=self.output, end="")
+
+    # def done(self):
+        
+    #     args = {
+    #         "srf_dice": self.val[0],
+    #         "cnv_dice": self.val[1],
+    #         "avg_dice": (self.val[0]+self.val[1])/2,
+    #     }
+    #     self.current = self.total
+    #     self()
+    #     print("\nMetric for CNV: [ Dice:%(cnv_dice)f ] Metric for SRF: [ Dice:%(srf_dice)f]\n"% args)
+    #     print("", file=self.output)
+    #     # # 向logs输出当前的结果
+    #     with open("./logs/%s.txt" % self.save_model_path, "a") as f:
+    #         print(self.write_message, file=f)
+
+
