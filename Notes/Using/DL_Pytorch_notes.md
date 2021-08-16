@@ -308,7 +308,7 @@ ax.scatter(x,x)
 import python
 import cv2
 
-img = cv2.imread(filepath,flags)     #读入一张图像[文件名必须为英文](flag=cv2.IMREAD_COLOR  cv2.IMREAD_GRAYSCALE  cv2.IMREAD_UNCHANGED)
+img = cv2.imread(filepath,flags)     #读入一张图像[文件名必须为英文](flags=cv2.IMREAD_COLOR  cv2.IMREAD_GRAYSCALE cv2.IMREAD_UNCHANGED)
 #读入中文路径方法
 def cv_imread(file_path = ""):
     img_mat=cv2.imdecode(np.fromfile(file_path,dtype=np.uint8),-1)
