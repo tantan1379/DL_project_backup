@@ -91,6 +91,7 @@ class UNet_SPP_SE(nn.Module):
         up1 = self.up_concat1(up2,conv1) # 32*512*256
 
         final_1 = self.final_1(up1)      # 1*512*256
+        final_1 = torch.sigmoid(final_1) 
         return final_1
 
 

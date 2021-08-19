@@ -220,7 +220,7 @@ if __name__ == "__main__":
     log_dir = os.path.join(args.log_dirs, args.net_work + '_' + current_time + '_' + socket.gethostname())
     writer = SummaryWriter(log_dir=log_dir)
     
-    for i in range(args.k_fold):
+    for i in range(2,args.k_fold):
         para = main(args=args, writer=writer, k_fold=int(i + 1))
         dice_4_fold.append(para[0])
         jac_4_fold.append(para[1])

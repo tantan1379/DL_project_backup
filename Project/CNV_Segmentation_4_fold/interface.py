@@ -1,7 +1,8 @@
 import numpy as np
 import math
 
-para = [0.8182,0.7966,0.8812,0.8831]
+para = [0.8104,0.9373,0.8334,0.8657]
 mean = np.mean(para)
 std = np.std(para)
+print(mean)
 print(std)

@@ -74,7 +74,7 @@ class UNet(nn.Module):
         up2 = self.up_concat2(up3,conv2)     # 64*256*128
         up1 = self.up_concat1(up2,conv1)     # 32*512*256
         final_1 = self.final_1(up1)          # 3*512*256
-        final = torch.sigmoid(final_1)
+        final_1 = torch.sigmoid(final_1)
         return final_1
 
 

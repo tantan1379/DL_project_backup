@@ -23,7 +23,7 @@ class cnv_single_config(object):
     momentum = 0.9                  # 优化器动量
     weight_decay = 1e-4             # L2正则化系数
     # 训练相关
-    net_work = 'resunet_concat'               # 可选网络 * unet/cpfnet/resunetplusplus/unet_spp_se/pspnet
+    net_work = 'unet'               # 可选网络 * unet/cpfnet//unet_spp_se/pspnet
     num_workers = 0                 # dataloader设置
     num_classes = 1                 # 分割类别数 类别数+加背景 *
     cuda = '0'                      # GPU id选择 *

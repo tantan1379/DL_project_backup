@@ -174,8 +174,12 @@ class CE_Net(nn.Module):
 
         filters = [64, 128, 256, 512]
         resnet = resnet34(pretrained=True)
-        # self.firstconv = nn.Conv2d(1,64,7,2,1)
-        self.firstconv = resnet.conv1
+        if in_channels==3:
+            self.firstconv = resnet.conv1
+        else:
+            self.firstconv = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3,
+                               bias=False)
+        # self.firstconv = resnet.conv1
         self.firstbn = resnet.bn1
         self.firstrelu = resnet.relu
         self.firstmaxpool = resnet.maxpool
@@ -226,7 +230,7 @@ class CE_Net(nn.Module):
         out = self.finalconv2(out)
         out = self.finalrelu2(out)
         out = self.finalconv3(out)
-        # out = torch.sigmoid(out)
+        out = torch.sigmoid(out)
 
         return out
 
