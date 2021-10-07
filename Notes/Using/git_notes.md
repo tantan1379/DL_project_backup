@@ -74,9 +74,7 @@ HEAD后跟^的数量表示回退的版本数，不加时用于取消暂存(add)�
 
 #### 服务器端相关
 
-显示已有服务器：`git remote`
-
-显示服务器端的地址：`git remote -v`
+显示已有服务器：`git remote`显示服务器端的地址：`git remote -v`
 
 添加服务器：`git add remote [name] git_repository_SSH` 
 

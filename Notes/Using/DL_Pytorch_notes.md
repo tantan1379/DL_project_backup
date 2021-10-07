@@ -3,21 +3,13 @@
 ## Basic knowledge
 
 * tensor比ndarray的优势在于可以使用GPU进行加速计算
-
 * 有多少个卷积核就有多少个feature map，一个feature map对应图像被提取的一种特征
-
-* output = ( input - K + 2 * P ) / S + 1 ，改变S可以改变输入的维度
-
 * DoubleTensor比FloatTensor有更高的精度，适合增强学习
-
 * 需要将model先移动到cuda后，再创建optimizer
-
 * 应该在optimizer更新后，再对scheduler进行更新
-
 * tensor和Tensor(FloatTensor)的区别在于，tensor只能接受现有的数据，Tensor可以接受数据的维度()或数据([])
-
 * 通常 a.方法和torch.方法(a)可以替换
-
+* dilation=1为一般卷积
 * 一些shape问题：
   （1）经过trainloader加载后，loader的维度为(batchsize,channel,height,width)
   （2）dim=?的意思就是删除某一维度

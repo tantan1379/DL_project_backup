@@ -14,11 +14,11 @@ Linux最擅长的领域：**服务器**
 
 
 
-### 虚拟机创建
+### Linux分区
 
-linux分区：boot(1G)、swap(size==内存)、root(剩余)
+安装Linux时，默认linux分区：引导分区boot(1G)、交换分区swap(size=2G即可)、根目录/(剩余)
 
-swap分区作用：可以临时充当内存，但速度不如内存
+swap分区作用：swap类似于windows的虚拟内存文件，可以临时充当内存，但速度不如内存
 
 
 
@@ -104,14 +104,14 @@ linux下一切皆为文件！
 
 
 
-### 用户权限（*）
+### 用户权限(*)
 
 ![image-20210903111825574](C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210903111825574.png)
 
 当输入`ll`查看文件详细内容时，各位置的意义如下：
 
 （1）第一个位置为文件的类型和权限缩写【共10位】
-第0位确定文件类型：-为普通文件、l为链接、d为目录、c为字符设备，如鼠标键盘、b为块设备，如硬盘；
+第0位确定文件类型：**-为普通文件、l为链接、d为目录、c为字符设备，如鼠标键盘、b为块设备，如硬盘**；
 第1-3位为文件所有者对文件的权限；
 第4-6位为文件所在组对该文件的权限；
 第7-9位表示（组外）其他用户对该文件的权限  
@@ -126,14 +126,109 @@ linux下一切皆为文件！
 
 （6）第七个位置为文件名或 链接名->路径
 
-注意点：
-1、rwx分为作用于文件和作用于目录两种，
-当**rwx作用于文件时**，r表示可以读取和查看文件，w表示可修改但不可以删除文件，x表示可以执行文件；
-当**rwx作用于目录时**，r表示可以ll出目录下拥有哪些文件，w表示可以对目录下文件进行创建、删除和重命名操作，重命名目录；x表示可以进入该目录。
-
-2、常用数字的加和表示文件的权限
 
 
+rwx分为作用于文件和作用于目录两种，当**rwx作用于文件时**：
+r表示可以读取和查看该文件；
+w表示可修改但不可以删除该文件；
+x表示可以执行该文件；
+当**rwx作用于目录时**：
+r表示可以打印出目录下拥有哪些文件（但依然不影响修改目录内的文件）；
+w表示可以对目录下文件进行创建、删除和重命名操作，重命名目录；
+x表示可以进入该目录（基本要求）。
+
+
+
+### 网络
+
+网络环境配置：
+（1）自动获取ip（dhcp)：Linux启动后会自动获取IP，但每次获取的ip地址可能不同
+（2）手动指定ip（静态）：修改配置文件/etc/sysconfig/network-scripts/ifcfg-ens33
+
+
+
+设置主机名方法：
+`hostname`	可以查看当前主机名
+`vim /etc/hostname`	修改当前主机名
+修改后重启生效
+
+
+
+设置hosts映射：
+`vim /etc/hosts`	修改映射（格式为`ip hostname` ）
+`ip hostname`	即可用设置的hostname代替ip
+
+
+
+主机名解析过程（hosts和DNS）：
+hosts是一个文本文件（lInux下位于/etc下），用于记录IP和hostname的映射关系；DNS是域名系统，是互联网上域名和IP地址相互映射的分布式数据库。一个域名对应一个IP地址，一个IP地址可以对应多个域名，所以多个域名可以同时被解析到一个IP地址。
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210923212346910.png" alt="image-20210923212346910" style="zoom:50%;" />
+
+
+
+**注意点：** 
+
+* 网络需要在同一个网段（ip的前三段）才能进行通讯
+
+
+
+### 进程(*)
+
+Linux中，每个执行的程序称为一个进程，每个进程都分配一个ID号。每个进程可能以两种方式存在：前台和后台。前台指用户目前屏幕上可以进行操作的进程。后台是实际在操作的进程。
+
+一般系统的服务都是以后台进程的方式存在，通常常驻在系统中，关机才会停止。
+
+
+
+**相关指令:**
+
+`ps -aux`	查看当前系统正在执行的进程。(可用grep管道进一步筛选) [`ps -a` 显示当前终端的所有进程信息		`ps -u` 以用户的格式显示进程信息	`ps -x` 显示后台进程运行的参数]
+
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210924105822260.png" alt="image-20210924105822260" style="zoom: 33%;" />
+
+`ps -ef`	以全格式显示当前所有进程。
+
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210924113200335.png" alt="image-20210924113200335" style="zoom: 33%;" />
+
+`kill [option] PID `	通过**进程号**杀死/终止进程	[-9 强制停止进程，比如强制关闭正在运行的终端需要加-9]
+
+`killall processname`	杀死**指定名字**的所有进程
+
+`pstree`	显示进程名组成的树	[-p 同时显示PID进程号 -u 同时显示进程用户]
+
+
+
+### 服务
+
+服务本质就是进程，但运行在后台，通常会监听某个端口，等待其他程序的请求，因此又称为守护进程。
+
+
+
+**相关指令：**
+
+`service servicename [start|stop|restart|reload|status]`	服务管理（开启、暂停、重启、查看状态）
+
+`chkconfig --list [| grep servicename]`	查看服务的各个运行级别是自启动还是关闭
+
+`chkconfig --level x servicename on/off`	修改某服务在某一运行级别的自启动状态
+
+`ststemctl [start|stop|restart|status] servicename`	服务管理（开启、暂停、重启、查看状态） 
+
+`ls -l /usr/lib/systemd/system | grep servicename`	查看systemctl下服务的信息
+
+`systemctl list-unit-files [| grep servicename]`	查看服务开机启动状态
+
+`systemctl enable/disable servicename`	设置/关闭服务开机启动
+
+`systemctl is-enabled servicename`	查询某个服务是否是自启动的
+
+
+
+**注意点：**
+
+* centos 7.0使用systemctl而不是用service
+* service指令管理的服务在/etc/init.d查看
+* systemctl指令管理的服务在/usr/lib/systemd/system查看
 
 ---
 
@@ -141,30 +236,28 @@ linux下一切皆为文件！
 
 ## 二、实操
 
-### 创建screen会话(*)
+### 创建screen会话(远程专用)
 
 远程服务器的时候，断网或者手误关掉了远程终端，会导致会话中断，程序终止。
 而Screen连接的终端，会话独立运行，程序会一直进行。而且会话可以恢复，还可以自行删除。
 
 **常用命令**
 
-```shell
-screen -S yourname           # 新建一个叫yourname的session
+`screen -S yourname`	新建一个叫yourname的session
 
-screen -ls                   # 列出当前所有的session
+`screen -ls` 	列出当前所有的session
 
-screen -r yourname           # 回到yourname这个session
+`screen -r yourname`	回到yourname这个session
 
-screen -d yourname           # 远程detach某个session    # detach快捷键 ctrl a + d
+`screen -d yourname`	远程detach某个session    # detach快捷键 ctrl a + d
 
-screen -d -r yourname        # 结束当前session并回到yourname这个session
+`screen -d -r yourname`	结束当前session并回到yourname这个session
 
-screen -S yourname -X quit   # 删除叫yourname的session
+`screen -S yourname -X quit`	删除叫yourname的session
 
-screen -wipe 				 # 清除dead的会话
+`screen -wipe`	清除dead的会话
 
-screen -x					 # 用于会话窗口的共享，比如多台主机连接到该服务器用户端，可以同时共享输出结果
-```
+`screen -x`	用于会话窗口的共享，比如多台主机连接到该服务器用户端，可以同时共享输出结果
 
 **注意点**
 
@@ -178,7 +271,7 @@ screen -x					 # 用于会话窗口的共享，比如多台主机连接到该服
 
 
 
-### Vim的使用(*)
+### Vim的使用(文本编辑器)
 
 vim是vi的增强版，是linux下的文本编辑器，具有程序编辑的能力，可用字体颜色辨别语法的正确性。
 
@@ -204,15 +297,15 @@ vim常用的三种模式：正常模式、插入模式、命令行模式。
 
 **插入模式**
 
-使用i,o,a,r的大小写可以进入，直接进行编辑。
+使用i,o,a,r的大小写进入插入模式，直接进行编辑。
 
 
 
 **命令行模式**
 
-输入 : 进入命令行模式。可以完成读取存盘、替换、显示行号和离开等。
+输入 esc进入命令行模式。可以完成读取存盘、替换、显示行号和离开等。
 
-命令：
+常用命令：
 
 `:wq` ：保存并退出
 
@@ -232,27 +325,200 @@ vim常用的三种模式：正常模式、插入模式、命令行模式。
 
 ---
 
+### crond的使用(定时任务调度)
+
+任务调度是指系统在某个时间执行特定的命令或程序。crontab是最常用的定时任务软件。我们一般使用`crontab`进行定时任务的设置。
+
+**任务调度指令**
+
+`crontab -e`	进入个人调度进行定时任务编辑
+
+`crontab -l`	查询crontab任务
+
+`crontab -r`	删除当前用户所有的crontab任务
+
+`service crond restart`	重启任务调度
+
+
+
+
+
+**任务调度编辑**
+
+在个人调度内输入：`*/1 * * * * command`	表示在每个小时的每分钟执行command指令	e.g. `*/1**** ls -l /etc/ > /tmp/to.txt`表示每小时的每分钟将/etc/目录下的内容写入到/tmp/to.txt中
+
+command一般有两种形式，一种是直接的命令，另一种为脚本文件，第二种最为常用；
+
+command为脚本时的操作步骤：
+
+```sh
+vim command.sh			# 创建并编辑sh文件
+edit(e.g.):
+date >> mydate.txt
+chmod u+x command.sh	# 赋予sh文件执行权限
+crontab -e				# 编辑任务调度
+edit(e.g.):
+*/1 * * * * command.sh 
+```
+
+**注意点**
+
+* 如果有多行则会分别进行任务调度
+
+* 5个占位符分别表示：一个小时的第几分钟、一天中的第几个小时、一个月中的第几天、一年中的第几个月、一周中的星期几【注意用空格隔开】
+
+* 特殊符号的意义： 
+
+  *：表示任何时间，星号/1，表示每..都执行
+
+  ,：表示不连续的时间，如`0 8,12,16 * * * `意为每天的8:00,12:00,16:00各执行一次命令
+
+  -：表示连续的时间范围：如`0 5 * * 1-6`意为每周一到周六的5:00执行命令
+
+  */n：表示每隔多久执行一次：比如`*/10 * * * *`表示每隔10分钟执行一次
+
+* 星期和日期不要同时出现，易出现混淆（如果出现了则在指定的日期和周几均会执行命令）
+
+
+
+
+
+**应用实例**
+
+每天凌晨2:00将mysql数据库testdb备份到文件中，备份指令：`mysqldump -u root -p密码 数据库 > /home/db.bak`
+
+```sh
+crontab -e 
+0 2 * * * mysqldump -u root -proot test > /home/db.bak
+
+```
+
+
+
+---
+
+### at的使用(单次定时任务调度)
+
+at命令是一次性定时计划任务，at的守护进程atd会在后台模式运行，检查作业队列来运行。执行完一个任务后就不再执行该任务了。
+
+默认情况下，atd守护进程**每60秒**检查作业队列，有作业时，会检查作业运行时间，如果匹配则运行此作业。
+
+**相关指令**
+
+`ps -ef`	查看当前运行的进程【重要】（at命令在使用时，需要保证atd进行的启动），查看是否有atd进程:`ps -ef | grep atd`
+
+`at [option] [time]`	设定at任务
+
+`atq`	查看已有但没有被执行的at任务
+
+`atrm num`	删除编号为num的at任务
+
+**注意点**
+
+* 指定时间的方法：
+  1）以hh:mm的方式（小时:分钟）在当天内指定，如果当天已过该时间，则在第二天的该时间执行；
+  2）使用midnight,noon,teatime等模糊时间指定；
+  3）采用12小时制，在时间后加AM或PM，如12pm；
+  4）指定日期和时间（注意日期必须在时间后面），如04:00 2021-03-1；
+  5）使用相对计数法，格式为`now + count time-units`，time-units包括hours、minutes、days、weeks，如now + 5 minutes
+* 使用ctrl+d结束at命令的输入
+* 在设定任务时，backspace会被转化为^H，此时按住ctrl再删除即可
+
+
+
+**应用实例**
+
+两天后的下午5点执行`ls /home`:
+
+```sh
+at 5pm + 2 days
+at> ls /home
+input ctrl+d(twice)
+```
+
+明天的下午5点将当前时间写入mydate.txt:
+
+```sh
+at 5pm tomorrow
+at> date > mydate.txt
+input ctrl+d(twice)
+```
+
+
+
+---
+
+### 磁盘分区和挂载
+
+**分区和挂载的原理**
+
+Linux 系统中“一切皆文件”，所有文件都放置在以根目录为树根的树形目录结构中，Linux的多个分区归根结底只有一个根目录，每个分区都只是组成整个文件系统的一部分。
+
+任何硬件设备也都是文件，它们各有自己的一套文件系统（文件目录结构）。当在 Linux 系统中使用这些硬件设备时，只有将Linux本身的文件目录与硬件设备的文件目录合二为一，硬件设备才能为我们所用。合二为一的过程称为“挂载”。
+**挂载，指的就是将设备文件中的顶级目录连接到 Linux 根目录下的某一目录（最好是空目录），访问此目录就等同于访问设备文件。**
+
+**注意点**
+
+* 并不是根目录下任何一个目录都可以作为挂载点，由于挂载操作会使得原有目录中文件被隐藏，因此根目录以及系统原有目录都不要作为挂载点，会造成系统异常甚至崩溃，挂载点最好是新建的空目录。
+* 如果不挂载，通过Linux系统中的图形界面系统可以查看找到硬件设备，但命令行方式无法找到硬件设备。
+
+**硬盘介绍**
+
+Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。IDE硬盘，驱动标识符为"hdx~"，SCSI的标识符为"sdx~"。
+
+其中x表示盘号【第几个硬盘】（a为基本盘，b为基本从属盘，c为辅助主盘，d为辅助从属盘），~表示分区（1-5分别对应各个分区）
+
+磁盘分区主要分为基本分区（primary partion）和扩充分区(extension partion)两种，基本分区和扩充分区的数目之和不能大于四个，多于4个的分区称为逻辑分区。
+
+**添加新硬盘并挂载步骤**
+
+1）虚拟机添加新硬盘，选择类型为SCSI
+2）对/sdb进行分区，指令为`fdisk /dev/sdb`,设置相关内容
+3）格式化硬盘，指令为`mkfs -t ext4 /dev/sdb1`
+4）将分区与目录挂载，首先创建一个空目录，使用`mount /dev/sdb1 /newdisk`进行挂载
+	（永久挂载）修改/etc/fstab，如下图最后一行所示，编辑新分区信息，可以执行`mount -a`立即生效，也可以重启
+
+![image-20210915204335997](C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210915204335997.png)
+
+**相关指令**
+
+`lsblk`	查看设备挂载情况 （[-f]可以查看挂载点）
+
+`fdisk /dev/sdb`	对虚拟机进行分区	（进入后输入命令进行相关操作	n：创建新的分区	d：删除分区	w：写入并退出	q：不保存且退出）
+
+`mkfs -t ext4 /dev/sdb2 `	格式化硬盘（ext4为分区类型）
+
+`mount /dev/sdb1 newfold`	将sdb1挂载到newfold上(该指令在重启后会失效)
+
+`umount /dev/sdb1`或`umount newfold`	卸载
+
+`df -h`	查看系统整体磁盘使用情况
+
+`du -h dir`	查看指定目录的磁盘占用情况	[-h 带计量单位	--max-depth=x 子目录深度	-a 含文件	-c 显示汇总值]	常用：`du -hca --max-depth=1 dir`
+
+
+
+---
+
 
 
 ### 系统指令
 
 ##### 关机和重启
 
-```shell
-shutdown -h now  或 init 0	# 立刻关机
+`shutdown -h now`  或` init 0`	立刻关机
 
-shutdown -h 1 或 shutdown	# 1分钟后关机
+`shutdown -h 1` 或 `shutdown`	1分钟后关机
 
-shutdown -r now 或 init 6 	# 立刻重启（1分钟重启的操作类似上一条）
+`shutdown -r now` 或 `init 6`	立刻重启（1分钟重启的操作类似上一条）
 
-shutdown -c 		     	 # 取消关机
+`shutdown -c`	取消关机
 
-halt 	 					 # 立刻关机（同上）
+`halt`	立刻关机（同上）
 
-reboot 					     # 立刻重启（同上）
+`reboot `	立刻重启（同上）
 
-sync	 					 # 将内存数据同步到磁盘
-```
+`sync`	将内存数据同步到磁盘
 
 **注意点：**
 
@@ -267,39 +533,19 @@ sync	 					 # 将内存数据同步到磁盘
 
 ##### 用户管理
 
-```shell
-useradd usr			# 添加用户（别忘了添加用户名否则是为当前的用户设置密码）
+`su - usr`	切换用户（`su - root` 切换到管理员身份）
 
-useradd -d dir usr	# 在指定目录创建用户的主目录
+`useradd usr`	添加用户（别忘了添加用户名否则是为当前的用户设置密码）
 
-passwd usr			# 为用户设置密码
+`useradd -d dir usr`	在指定目录创建用户的主目录
 
-userdel usr 		# 删除用户保留主目录（一般选择保留）
+`passwd usr`	为用户设置密码
 
-userdel -r usr		# 删除用户并删除用户主目录
+`userdel usr`	删除用户保留主目录（一般选择保留）
 
-id usr 				# 查看用户id
+`userdel -r usr`	删除用户并删除用户主目录
 
-whoami 				# 查看当前用户（`who am i`	查看用户的开机时间、ip）
-
-su - usr  			# 切换用户（`su - root` 切换到管理员身份）
-
-logout  			# 表示返回原来用户或系统
-
-exit 				# 返回原来用户或关闭终端
-
-groupadd group		 # 新增组
-
-groupdel group		 # 删除组  
-
-useradd -g group usr # 添加用户的同时添加组（注意先写组再写用户）
-
-usermod -g group usr # 修改用户组
-
-usermod -d newpath usr # 修改用户登陆的初始目录（用户需要有进入到新目录的权限）
-
-chgrp group file	 # 修改文件所在的组
-```
+`usermod -d newpath usr` 	修改用户登陆的初始目录（用户需要有进入到新目录的权限）
 
 **注意点**：
 
@@ -313,25 +559,35 @@ chgrp group file	 # 修改文件所在的组
 
 
 
+##### 组管理
+
+`groupadd group`	新增组
+
+`groupdel group`	删除组  
+
+`useradd -g group usr` 	添加用户的同时添加组（注意先写组再写用户）
+
+`usermod -g group usr` 	修改用户所在组
+
 
 
 ##### 其他设置
 
-0：关机		1：单用户（找回丢失密码）		2：多用户状态没有网络服务		**3：多用户状态有网络服务（常用）**
+0：关机		1：单用户（找回丢失密码）		2：多用户状态没有网络服务		**3：多用户状态有网络服务（工作常用）**
 
 4：系统未使用，保留给用户		**5：图形界面（常用）**		6：系统重启
 
-```sh
-init [0123456] 					# 修改用户级别
+`init [0123456]`	修改用户级别
 
-systemctl set-default [...] 	# 指定默认用户级别，如：multi-user.target/graphical.target（centos7之前在/etc/inittab文件中修改）
+`systemctl set-default [...]`	指定默认用户级别（不能设为0,6），如：multi-user.target/graphical.target（centos7之前在/etc/inittab文件中修改）
 
-systemctl get-default 		    # 用于查看默认运行级别
+`systemctl get-default`	用于查看默认运行级别
 
-date -s [str]					# 设置时间
+`date -s [str]`	设置时间
 
-tzselect -select a time zone	# 设置时区
-```
+`tzselect -select a time zone`	设置时区
+
+`service network restart`	重启网络服务
 
 
 
@@ -365,9 +621,9 @@ tzselect -select a time zone	# 设置时区
 
 `pwd`	显示当前所在的绝对目录
 
-`ls [-options] path`	打印目录（`-l`以列表形式打印包括权限、所有者的详细信息 `-a`打印包括隐藏文件(.xxx)的信息 `-h`按最大的单位显示大小）[蓝色表示目录 白色表示文件 红色表示压缩包]
+`ls [-options] path`	打印目录（**[-l]以列表形式打印包括权限、所有者的详细信息 [-a]打印包括隐藏文件(.xxx)的信息 [-h]按最大的单位显示大小 [-R] 递归显示**）[蓝色表示目录 白色表示文件 红色表示压缩包]
 
-`ll path`	查看path目录的详细信息[同ls -l]
+`ll path`	查看path目录的详细信息(同ls -l)
 
 `echo -option context`	输出内容到控制台	（可以打印环境变量，如`echo $PATH`)
 
@@ -376,6 +632,12 @@ tzselect -select a time zone	# 设置时区
 `cal`	显示当月日历信息 （`cal 2020`	显示2020年的所有日历）
 
 `date`	显示当前时间	(`date +%D`	显示年月日	`+%Y`表示年 `+%m` 表示月 `+%d`表示日)	(`date -s “2021-8-16 20:48:00”`设置日期)
+
+`id usr`	查看用户id
+
+`whoami`	查看当前用户
+
+`who am i`	查看用户的开机时间、ip
 
 `man [命令或配置文件]`	获取帮助信息
 
@@ -399,43 +661,10 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 `tail file`	默认显示文件的后10行内容	（`tail -n x file`	[-n]表示选择后x行的内容 `tail -f file`	**[-f]表示实时监控文件的内容**)
 
+`wc file`	查看文件的行数、单词数和字节数	(**[-l] 只显示行数	[-w] 只显示字数	[-c] 只显示字节数**	
+查看目录下所有文件的个数: `ls -l | grep "^-" | wc -l`)
 
 
-##### 切换目录
-
-`cd path`	切换到指定目录（注意绝对路径前加`/`，相对路径不用加或用`./path`）
-
-`cd /`	切换到主目录，进入系统默认的是用户目录
-
-`cd ~`	或 `cd` 切换到用户目录
-
-`cd ..` 	跳转到上一层（`cd ../../`跳转到上上层）
-
-
-
-##### 删除
-
-`rmdir /path/fold`	删除空目录
-
-`rm -rf /path/fold`	删除非空目录【慎重】 -r：递归  -f：强制（不提示）
-
-
-
-##### 创建
-
-`touch filename`	创建空文件
-
-`mkdir /path/fold`	创建单级文件	[-p]创建多级目录
-
-
-
-##### 拷贝移动
-
-`cp source dest`	拷贝文件到指定目录	[-r]递归复制
-
-`\cp source dest`	强制覆盖复制（不提示）
-
-`mv source dest`	移动文件与目录或重命名【当文件在同一个目录，该命令用于重命名；也可移动并重命名；不需要-r选项】
 
 
 
@@ -451,11 +680,51 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 `which order`	查看指令所在位置
 
-`grep [option] content file`	过滤查找， 一般与管道指令一起使用：如`cat mydata.txt | grep "hello"`或`grep "hello" mydate.txt`【-n 显示行号】
+`grep [option] content file`	过滤查找， 一般与管道指令一起使用：如`cat mydata.txt | grep "hello"` 	
+
+`ls -l dir | grep "^-"`	只查询目录下的文件【-n 显示行号	^-表示只查询权限以-开头的文件名（指文件）】
+
+
+
+
+
+##### 切换目录
+
+`cd path`	切换到指定目录（注意绝对路径前加`/`，相对路径不用加或用`./path`）
+
+`cd /`	切换到主目录，进入系统默认的是用户目录
+
+`cd ~`	或 `cd` 切换到用户目录
+
+`cd ..` 	跳转到上一层（`cd ../../`跳转到上上层）
+
+
+
+
+
+##### 删除、创建、移动、拷贝
+
+`rmdir /path/fold`	删除空目录
+
+`rm -rf /path/fold`	删除非空目录【慎重】 -r：递归  -f：强制（不提示）
+
+`touch filename`	创建空文件
+
+`mkdir /path/fold`	创建单级文件	[-p]创建多级目录
+
+`cp source dest`	拷贝文件到指定目录	[-r]递归复制
+
+`\cp source dest`	强制覆盖复制（不提示）
+
+`mv source dest`	移动文件与目录或重命名【当文件在同一个目录，该命令用于重命名；也可移动并重命名；不需要-r选项】
+
+
 
 
 
 ##### 压缩和解压
+
+`yum install command`	安装软件（需联网）
 
 `gzip file`	压缩文件	
 
@@ -471,13 +740,110 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 
 
-##### 其他
 
-`chown user file `	改变文件所有者 
+
+##### 软链接
+
+软链接又称为符号链接，类似于windows下的快捷方式，存放着链接其他文件的路径
+
+语法：
+
+`ln -s [origin] [name]`	给原文件创建一个软链接
+
+e.g.
+
+` ln -s /root /home/myroot`	在home目录创建一个软链接并链接到root目录 （此时权限为开头为l）
+
+`rm /home/myroot`	删除home目录下的软链接(注意不要在后面添加/)
+
+
+
+##### 修改权限
+
+**修改文件**
+
+`chmod u=rwx,g=rx,o=x file/dir` 	给文件/目录的u、g、o分别赋予权限
+
+`chmod o+w file/dir`	给文件/目录的其他人添加写权限，此时文件会变为绿色（表示文件为可执行文件）
+
+`chmod a-x file/dir`	给文件/目录的所有人删除执行权限，
+
+`chmod 751 file/dir`	相当于`chmod u=rwx,g=rx,o=x file/dir`
+
+**修改所有者**
+
+`chown newowner file/dir`	改变文件所有者 【[-R] 可以对文件夹下的所有内容递归实现修改】
+
+`chown newowner:newgroup file/dir`	改变文件所有者和所在组	
+
+**修改所有组**
+
+`chgrp newgroup file/dir`	修改所在组【[-R] 可以对文件夹下的所有内容递归实现修改】
+
+**注意点**
+
+* 更改权限有两种方式
+  方式1：+、-、=变更权限	**u:所有者 g:所有组 o:其他人 a:所有人**(u、g、o的总和)
+  方式2：**r=4 w=2 x=1**，利用各位置的加和对权限进行修改
+* 进入目录首先需要对文件夹有x的权限
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ---
-
-
 
 ### 语法
 
@@ -513,19 +879,7 @@ e.g.
 
 
 
-##### 软链接
 
-软链接又称为符号链接，类似于windows下的快捷方式，存放着链接其他文件的路径
-
-语法：
-
-`ln -s [origin] [name]`	给原文件创建一个软链接
-
-e.g.
-
-` ln -s /root /home/myroot`	在home目录创建一个软链接并链接到root目录 （此时权限为开头为l）
-
-`rm /home/myroot`	删除home目录下的软链接(注意不要再后面添加/)
 
 
 
