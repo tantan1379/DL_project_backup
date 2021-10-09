@@ -1,5 +1,3 @@
-# TODO ReviewMe
-
 # 堆排序
 # parent = floor((i-1)/2) left = 2i+1 right = 2i+2
 

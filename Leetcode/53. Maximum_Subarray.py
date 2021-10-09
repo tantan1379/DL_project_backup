@@ -1,11 +1,18 @@
-"""
+'''
+@File    :   53. Maximum_Subarray.py
+@Time    :   2021/10/07 16:20:56
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given an integer array nums, find the contiguous subarray (containing at least one number) which has the largest sum and
 return its sum.
 Follow up: If you have figured out the O(n) solution, try coding another solution using the divide and conquer approach,
 which is more subtle.
 
 给定一个整数数组 nums ，找到一个具有最大和的连续子数组（子数组最少包含一个元素），返回其最大和。
-"""
+'''
 
 
 # Violence

@@ -1,4 +1,11 @@
 '''
+@File    :   24. Swap Nodes in Pairs.py
+@Time    :   2021/10/07 16:20:53
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given a linked list, swap every two adjacent nodes and return its head.
 '''
 

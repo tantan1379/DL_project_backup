@@ -1,4 +1,11 @@
 '''
+@File    :   206. Reverse Linked List.py
+@Time    :   2021/10/07 16:21:51
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given the head of a singly linked list, reverse the list, and return the reversed list.
 '''
 

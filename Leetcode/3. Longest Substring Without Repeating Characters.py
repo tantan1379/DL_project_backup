@@ -1,4 +1,11 @@
 '''
+@File    :   3. Longest Substring Without Repeating Characters.py
+@Time    :   2021/10/07 16:19:31
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given a string s, find the length of the longest substring without repeating characters.
 '''
 # # 暴力解法 Time O(n^2) Space O(n)

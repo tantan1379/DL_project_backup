@@ -1,4 +1,11 @@
 '''
+@File    :   11. Container With Most Water.py
+@Time    :   2021/10/07 16:20:29
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 给你 n 个非负整数 a1，a2，...，an，每个数代表坐标中的一个点 (i, ai) 。在坐标内画 n 条垂直线，垂直线 i 的两个端点分别为 (i, ai) 和 (i, 0) 。找出其中的两条线，使得它们与 x 轴共同构成的容器可以容纳最多的水。
 
 说明：你不能倾斜容器。
@@ -31,7 +38,6 @@
 n == height.length
 2 <= n <= 105
 0 <= height[i] <= 104
-
 '''
 
 # violent solution O(n^2)

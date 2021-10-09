@@ -1,6 +1,13 @@
-"""
+'''
+@File    :   21. Merge Two Sorted Lists.py
+@Time    :   2021/10/07 16:20:50
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Merge two sorted linked lists and return it as a sorted list. The list should be made by splicing together the nodes of the first two lists.
-"""
+'''
 
 from utils.ll import *
 

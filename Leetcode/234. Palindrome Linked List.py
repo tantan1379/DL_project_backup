@@ -1,4 +1,11 @@
 '''
+@File    :   234. Palindrome Linked List.py
+@Time    :   2021/10/07 16:21:21
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given the head of a singly linked list, return true if it is a palindrome.
 Input: head = [1,2,2,1]
 Output: true

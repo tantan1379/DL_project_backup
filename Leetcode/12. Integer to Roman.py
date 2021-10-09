@@ -1,4 +1,11 @@
 '''
+@File    :   12. Integer to Roman.py
+@Time    :   2021/10/07 16:20:32
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Roman numerals are represented by seven different symbols: I, V, X, L, C, D and M.
 
 Symbol       Value
@@ -17,8 +24,10 @@ I can be placed before V (5) and X (10) to make 4 and 9. 
 X can be placed before L (50) and C (100) to make 40 and 90. 
 C can be placed before D (500) and M (1000) to make 400 and 900.
 '''
+
 int_to_roman_map = [(1,'I'),(4,'IV'),(5,'V'),(9,'IX'),(10,'X'),(40,'XL'),(50,'L'),(90,'XC'),(100,'C'),
     (400,'CD'),(500,'D'),(900,'CM'),(1000,'M')]
+
 
 def intToRoman(num):
     """

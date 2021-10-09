@@ -1,4 +1,11 @@
 '''
+@File    :   6. ZigZag Conversion.py
+@Time    :   2021/10/07 16:20:09
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 将一个给定字符串 s 根据给定的行数 numRows ，以从上往下、从左到右进行 Z 字形排列。
 
 比如输入字符串为 "PAYPALISHIRING" 行数为 3 时，排列如下：

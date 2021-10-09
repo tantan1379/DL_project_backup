@@ -1,4 +1,11 @@
 '''
+@File    :   8. String to Integer (atoi).py
+@Time    :   2021/10/07 16:20:20
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 请你来实现一个 myAtoi(string s) 函数，使其能将字符串转换成一个 32 位有符号整数（类似 C/C++ 中的 atoi 函数）。
 
 函数 myAtoi(string s) 的算法如下：

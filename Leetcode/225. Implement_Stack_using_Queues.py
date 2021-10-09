@@ -1,4 +1,11 @@
-"""
+'''
+@File    :   225. Implement_Stack_using_Queues.py
+@Time    :   2021/10/07 16:21:40
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Implement a last in first out (LIFO) stack using only two queues. The implemented stack should support all the functions
 of a normal queue (push, top, pop, and empty).
 

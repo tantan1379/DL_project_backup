@@ -1,4 +1,11 @@
 '''
+@File    :   5. Longest Palindromic Substring.py
+@Time    :   2021/10/07 16:19:46
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given a string s, return the longest palindromic substring in s. 回文字符串
 '''
 

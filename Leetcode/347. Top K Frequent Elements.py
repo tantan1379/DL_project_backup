@@ -1,5 +1,11 @@
-# TODO doing
 '''
+@File    :   347. Top K Frequent Elements.py
+@Time    :   2021/10/07 16:21:18
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.
 
 Example 1:

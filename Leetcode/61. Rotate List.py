@@ -1,4 +1,11 @@
 '''
+@File    :   61.Rotate List.py
+@Time    :   2021/10/07 16:22:01
+@Author  :   Tan Wenhao 
+@Version :   1.0
+@Contact :   tanritian1@163.com
+@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
+
 Given the head of a linked list, rotate the list to the right by k places.
 '''
 
