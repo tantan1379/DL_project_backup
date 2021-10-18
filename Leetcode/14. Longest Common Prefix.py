@@ -30,42 +30,59 @@ strs[i] 仅由小写英文字母组成
 '''
 
 # 横向扫描 O(mn)
-# def cpf(str1,str2):
-#     index = 0
-#     length = min(len(str1),len(str2))
-#     while index<length and str1[index]==str2[index]:
-#         index+=1
-#     return str1[:index]
+def cpf(str1,str2): # 返回两个字符串的公共前缀
+    index = 0
+    length = min(len(str1),len(str2))
+    while index<length and str1[index]==str2[index]:
+        index+=1
+    return str1[:index]
 
 
-# def longestCommonPrefix(strs):
-#     """
-#     :type strs: List[str]
-#     :rtype: str
-#     """
-#     prefix = strs[0]
-#     for i,string in enumerate(strs):
-#         if i==0:
-#             continue
-#         prefix = cpf(prefix,string)
-#         # if not prefix:
-#         #     break
-#     return prefix
+def longestCommonPrefix(strs):
+    """
+    :type strs: List[str]
+    :rtype: str
+    """
+    prefix = strs[0]    # 初始前缀设为第一个字符串
+    for i in range(i,len(strs)):
+        prefix = cpf(prefix,strs[i])    # 每次利用cpf函数得到新字符串和之前得到的公共前缀的公共前缀
+        if not prefix:  # 如果得到的公共前缀为空，直接返回空
+            return ""
+    return prefix
 
-# # 纵向扫描
-# def longestCommonPrefix(strs):
-#     """
-#     :type strs: List[str]
-#     :rtype: str
-#     """   
-#     count = len(strs) 
-#     length = len(strs[0])
-#     for i in range(length):
-#         c = strs[0][i]
-#         if len(c)==i or strs[j][i]!=c for j in range(1,count):
+# # 纵向扫描 O(mn)
+def longestCommonPrefix_portrait(strs):
+    """
+    :type strs: List[str]
+    :rtype: str
+    """   
+    if not strs:
+        return ""
+    count = len(strs) 
+    length = len(strs[0])
+    for i in range(length):
+        c = strs[0][i]
+        for j in range(1,count):
+            if len(strs[j])==i or strs[j][i]!=c:
+                return strs[0][:i]
+    return strs[0]
+        
 
-
+def longestCommonPrefix_python(strs):
+    """
+    :type strs: List[str]
+    :rtype: str
+    """   
+    res = ""
+    if not strs:
+        return ""
+    for st in zip(*strs):
+        if len(set(st))==1:
+            res+=st[0]
+        else:
+            break
+    return res
 
 
 if __name__ == '__main__':
-    print(longestCommonPrefix(['abc','qwe','abcd']))
+    print(longestCommonPrefix_python(['abc','aqwe','abcd']))

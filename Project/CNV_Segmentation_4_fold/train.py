@@ -14,7 +14,7 @@ import os
 import socket
 from torch.utils.data import DataLoader
 from datetime import datetime
-from tensorboardX import SummaryWriter
+# from tensorboardX import SummaryWriter
 import torch.nn as nn
 from torch.nn import functional as F
 import numpy as np
@@ -83,7 +83,7 @@ def val(args, model, dataloader, fold):
         return dice, jac, sen, spe
 
 
-def train(args, model, optimizer, criterion, train_dataloader, val_dataloader, writer, k_fold):
+def train(args, model, optimizer, criterion, train_dataloader, val_dataloader,  k_fold):
     best_pred = 0.0
     best_epoch = 0
     end_epoch = None # 可以设为1，用于直接进入test过程，检查bug
@@ -115,7 +115,6 @@ def train(args, model, optimizer, criterion, train_dataloader, val_dataloader, w
 
             loss_aux = criterion[0](output, label) # criterion[0]=BCELoss
             loss_main = criterion[1](output, label) # criterion[1]=DiceLoss
-            
             loss = loss_main + loss_aux
 
             train_loss.update(loss.item(), data.size(0)) # loss.item()表示去除张量的元素值，data.size()表示batchsize
@@ -129,17 +128,17 @@ def train(args, model, optimizer, criterion, train_dataloader, val_dataloader, w
             train_progressor() # 显示进度条
 
             step += 1
-            if step % 10 == 0:
-                writer.add_scalar('Train/loss_step_{}'.format(int(k_fold)), loss, step)
+            # if step % 10 == 0:
+                # writer.add_scalar('Train/loss_step_{}'.format(int(k_fold)), loss, step)
             loss_record.append(loss.item())
 
         train_progressor.done() # 输出logs
-        writer.add_scalar('Train/loss_epoch_{}'.format(int(k_fold)), float(train_loss.avg), epoch)
+        # writer.add_scalar('Train/loss_epoch_{}'.format(int(k_fold)), float(train_loss.avg), epoch)
         Dice, jaccard, Sensitivity, Specificity = val(args, model, val_dataloader,k_fold)
-        writer.add_scalar('Valid/Dice_val_{}'.format(int(k_fold)), Dice, epoch)
-        writer.add_scalar('Valid/Jac_val_{}'.format(int(k_fold)), jaccard, epoch)
-        writer.add_scalar('Valid/Sen_val_{}'.format(int(k_fold)), Sensitivity, epoch)
-        writer.add_scalar('Valid/Spe_val_{}'.format(int(k_fold)), Specificity, epoch)
+        # writer.add_scalar('Valid/Dice_val_{}'.format(int(k_fold)), Dice, epoch)
+        # writer.add_scalar('Valid/Jac_val_{}'.format(int(k_fold)), jaccard, epoch)
+        # writer.add_scalar('Valid/Sen_val_{}'.format(int(k_fold)), Sensitivity, epoch)
+        # writer.add_scalar('Valid/Spe_val_{}'.format(int(k_fold)), Specificity, epoch)
 
         is_best = Dice > best_pred
         if is_best:
@@ -169,7 +168,7 @@ def train(args, model, optimizer, criterion, train_dataloader, val_dataloader, w
     return para
 
 
-def main(args=None, writer=None, k_fold=1):
+def main(args=None, k_fold=1):
     # create dataset and dataloader
     dataset_path = os.path.join(args.data, args.dataset)
     dataset_train = CNV(dataset_path, scale=(args.crop_height, args.crop_width), k_fold_test=k_fold, mode='train')
@@ -191,7 +190,11 @@ def main(args=None, writer=None, k_fold=1):
     
     # 模型
     os.environ['CUDA_VISIBLE_DEVICES'] = args.cuda
-    model = net_builder(name=args.net_work, in_channels=1, n_class=args.num_classes).cuda()
+    model = net_builder(name=args.net_work, in_channels=3, n_class=args.num_classes).cuda()
+    para_nums = sum(p.numel() for p in list(model.parameters()) if p.requires_grad)
+    print('parameters_number = {}'.format(para_nums))
+    with open("%s_test_indicator.txt" % args.save_model_path, mode='a') as f:
+        print("parameters_number = {}".format(para_nums), file=f)
     cudnn.benchmark = True
     # 优化器
     optimizer = torch.optim.SGD(model.parameters(), lr=args.lr, momentum=args.momentum, weight_decay=args.weight_decay)
@@ -200,7 +203,7 @@ def main(args=None, writer=None, k_fold=1):
     criterion_main = LS.DiceLoss()
     criterion = [criterion_aux, criterion_main]
 
-    para = train(args, model, optimizer, criterion, dataloader_train, dataloader_val, writer, k_fold)
+    para = train(args, model, optimizer, criterion, dataloader_train, dataloader_val, k_fold)
 
     return para
 
@@ -218,10 +221,10 @@ if __name__ == "__main__":
     comments = os.getcwd().split(os.sep)[-1]
     current_time = datetime.now().strftime('%b%d_%H-%M-%S')
     log_dir = os.path.join(args.log_dirs, args.net_work + '_' + current_time + '_' + socket.gethostname())
-    writer = SummaryWriter(log_dir=log_dir)
+    # writer = SummaryWriter(log_dir=log_dir)
     
-    for i in range(2,args.k_fold):
-        para = main(args=args, writer=writer, k_fold=int(i + 1))
+    for i in range(0,args.k_fold):
+        para = main(args=args, k_fold=int(i + 1))
         dice_4_fold.append(para[0])
         jac_4_fold.append(para[1])
         sen_4_fold.append(para[2])

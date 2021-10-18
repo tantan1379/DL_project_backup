@@ -13,7 +13,7 @@ import shutil
 import cv2
 import numpy as np
 import SimpleITK as sitk
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 def double_linear(input_signal, zoom_multiples):
     input_signal_cp = np.copy(input_signal)
@@ -88,36 +88,36 @@ for one_pat in os.listdir(origin_path):
 #                 os.rename(os.path.join(select_path,one_pat,one_time,file),os.path.join(select_path,one_pat,one_time,file+'.nii.gz'))
 
 # remove
-for one_pat in os.listdir(origin_path):
-    for i,one_time in enumerate(os.listdir(os.path.join(origin_path,one_pat))):
-        for file in os.listdir(os.path.join(origin_path,one_pat,one_time)):
-            if 'seg' in file:
-                os.remove(os.path.join(origin_path,one_pat,one_time,file))
+# for one_pat in os.listdir(origin_path):
+#     for i,one_time in enumerate(os.listdir(os.path.join(origin_path,one_pat))):
+#         for file in os.listdir(os.path.join(origin_path,one_pat,one_time)):
+#             if 'seg' in file:
+#                 os.remove(os.path.join(origin_path,one_pat,one_time,file))
 
-for one_pat in os.listdir(origin_mask_path):
-    for i,one_time in enumerate(os.listdir(os.path.join(origin_mask_path,one_pat))):
-        for file in sorted(os.listdir(os.path.join(origin_mask_path,one_pat,one_time))):
-            if 'seg' not in file:
-                name = file
-                os.remove(os.path.join(origin_mask_path,one_pat,one_time,file))
-            else:
-                os.rename(os.path.join(origin_mask_path,one_pat,one_time,file),os.path.join(origin_mask_path,one_pat,one_time,name))
+# for one_pat in os.listdir(origin_mask_path):
+#     for i,one_time in enumerate(os.listdir(os.path.join(origin_mask_path,one_pat))):
+#         for file in sorted(os.listdir(os.path.join(origin_mask_path,one_pat,one_time))):
+#             if 'seg' not in file:
+#                 name = file
+#                 os.remove(os.path.join(origin_mask_path,one_pat,one_time,file))
+#             else:
+#                 os.rename(os.path.join(origin_mask_path,one_pat,one_time,file),os.path.join(origin_mask_path,one_pat,one_time,name))
 
 
-# # convert img to png
-for idx,one_pat in sorted(enumerate(os.listdir(origin_path))):
-    if idx>=14:
-        for i,one_time in enumerate(os.listdir(os.path.join(origin_path,one_pat))):
-            for file in os.listdir(os.path.join(origin_path,one_pat,one_time)):
-                img_array = sitk.GetArrayFromImage(sitk.ReadImage(os.path.join(origin_path,one_pat,one_time,file)))
-                for slice_index,one_slice_array in enumerate(img_array):
-                    png_name = one_pat+"_time_"+str(i+1)+"_"+str(slice_index+1)
-                    des_file_path = os.path.join(des_path,"img",one_pat,one_pat+"_time_"+str(i+1),png_name+'.png')
-                    cv2.imwrite(des_file_path,one_slice_array)
+# # # convert img to png
+# for idx,one_pat in sorted(enumerate(os.listdir(origin_path))):
+#     if idx==0:
+#         for i,one_time in enumerate(os.listdir(os.path.join(origin_path,one_pat))):
+#             for file in os.listdir(os.path.join(origin_path,one_pat,one_time)):
+#                 img_array = sitk.GetArrayFromImage(sitk.ReadImage(os.path.join(origin_path,one_pat,one_time,file)))
+#                 for slice_index,one_slice_array in enumerate(img_array):
+#                     png_name = one_pat+"_time_"+str(i+1)+"_"+str(slice_index+1)
+#                     des_file_path = os.path.join(des_path,"img",one_pat,one_pat+"_time_"+str(i+1),png_name+'.png')
+#                     cv2.imwrite(des_file_path,one_slice_array)
 
 # convert label to png
 for idx,one_pat in sorted(enumerate(os.listdir(origin_mask_path))):
-    if idx>=12:
+    if idx==0:
         for i,one_time in enumerate(os.listdir(os.path.join(origin_mask_path,one_pat))):
             for file in os.listdir(os.path.join(origin_mask_path,one_pat,one_time)):
                 img_array = sitk.GetArrayFromImage(sitk.ReadImage(os.path.join(origin_mask_path,one_pat,one_time,file)))

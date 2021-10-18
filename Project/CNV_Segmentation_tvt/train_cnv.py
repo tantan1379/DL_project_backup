@@ -155,7 +155,7 @@ def eval(args, model, dataloader):
     for c in os.listdir(os.path.join('./checkpoints',args.save_model_path)):
         model_path.append(os.path.join('./checkpoints',args.save_model_path,c))
     assert len(model_path)>0,print("No checkpoint detected! Please train first or change the 'save_model_path'!")
-    pretrained_model_path = model_path[0] # 最后一个模型(最好的)
+    pretrained_model_path = model_path[-1] # 最后一个模型(最好的)
     print("Load best model "+'\"'+os.path.abspath(pretrained_model_path)+'\"')
     checkpoint = torch.load(pretrained_model_path)
     model.load_state_dict(checkpoint['state_dict'])

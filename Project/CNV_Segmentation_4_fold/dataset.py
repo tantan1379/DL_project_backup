@@ -50,8 +50,15 @@ class CNV(data.Dataset):
     def __getitem__(self, idx):
         # load image
         img = Image.open(self.images_list[idx])
+        img_hf = Image.open(self.images_list[idx].replace("img","hf_img"))
+        img_lf = Image.open(self.images_list[idx].replace("img","lf_img"))
         img = self.resize_img(img)
+        img_hf = self.resize_img(img_hf)
+        img_lf = self.resize_img(img_lf)
         img = np.array(img)
+        img_hf = np.array(img_hf)
+        img_lf = np.array(img_lf)
+        img_cat = np.stack((img, img_hf, img_lf), axis=2).astype(np.uint8)
         # load label
         label = Image.open(self.labels_list[idx])
         label = self.resize_label(label)
@@ -63,7 +70,7 @@ class CNV(data.Dataset):
         if(self.mode == 'train'):  # 训练时对图像和标签数据增强
             seq_det = self.seq.to_deterministic()  # 创建数据增强的序列
             segmap = ia.SegmentationMapsOnImage(label, shape=label.shape) # 将分割结果转换为SegmentationMapOnImage类型，方便后面可视化
-            img = seq_det.augment_image(img) # 对图像进行数据增强
+            img = seq_det.augment_image(img_cat) # 对图像进行数据增强
             label = seq_det.augment_segmentation_maps([segmap])[0].get_arr().astype(np.uint8) # 将数据增强应用在分割标签上，并且转换成np类型
             label = np.reshape(label, (1,)+label.shape)
             label = torch.from_numpy(label.copy()).float()

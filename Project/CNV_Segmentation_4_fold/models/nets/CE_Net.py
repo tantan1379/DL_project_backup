@@ -215,7 +215,7 @@ class CE_Net(nn.Module):
         e4 = self.encoder4(e3)
 
         # Center
-        # e4 = self.dblock(e4)
+        e4 = self.dblock(e4)
 
         e4 = self.spp(e4)
 

@@ -84,15 +84,15 @@ class PSPNet(nn.Module):
         )
 
     def forward(self, x):
-        f = self.conv1(x)
-        f = self.feats.bn1(f)
-        f = self.feats.relu(f)
-        f = self.feats.maxpool(f)   # 64, 128, 64
-        f = self.feats.layer1(f)    # 64, 128, 64
-        f = self.feats.layer2(f)    # 128, 64, 32
-        f = self.feats.layer3(f)    # 256, 64, 32
-        f = self.feats.layer4(f)    # 512, 64, 32
-        p = self.psp(f)             # 512, 64, 32
+        f,_,_ = self.feats(x)
+        # f = self.feats.bn1(f)
+        # f = self.feats.relu(f)
+        # f = self.feats.maxpool(f)   # 64, 128, 64
+        # f = self.feats.layer1(f)    # 64, 128, 64
+        # f = self.feats.layer2(f)    # 128, 64, 32
+        # f = self.feats.layer3(f)    # 256, 64, 32
+        # f = self.feats.layer4(f)    # 512, 64, 32
+        p = self.psp(f)             # 1024, 64, 32
         p = self.drop_1(p)
 
         p = self.up_1(p)

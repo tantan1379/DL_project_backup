@@ -14,7 +14,9 @@ notes:
     除了第一个block的其余block通道数输入输出前后不变，为inplanes->inplanes/4->inplanes
 '''
 
-
+import sys
+sys.path.append("..")
+sys.path.append("../..")
 import torch.nn as nn
 import torch
 import math
@@ -110,6 +112,12 @@ class Bottleneck(nn.Module):
 
         return out
 
+'''
+注意点（针对bottleneck结构的resnet)：
+每个layer均由若干个block组成，每个layer的第一个block需要对特征图进行维度的调整，其余的block仅仅是对维度的先缩再放）
+除了第一个layer之外，每个layer的第一个block还需要对特征图进行下采样，因此同时需要对shortcut进行下采样以匹配block输出的特征图
+因此我们需要对第一个block进行单独处理
+'''
 
 class ResNet(nn.Module):
 
@@ -134,7 +142,7 @@ class ResNet(nn.Module):
         self.bn1 = nn.BatchNorm2d(self.inplanes)
         self.relu = nn.ReLU(inplace=True)
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.layer1 = self._make_layer(block, 64, layers[0])
+        self.layer1 = self._make_layer(block, 64, layers[0],stride=1)
         self.layer2 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer4 = self._make_layer(block, 512, layers[3], stride=2)
@@ -149,10 +157,11 @@ class ResNet(nn.Module):
                 m.weight.data.fill_(1)
                 m.bias.data.zero_()
 
-    # planes为每一个layer的通道数，blocks_num为每一个layer的block数，stride为shortcut的步距（表示是否下采样）
+    # planes为每一个layer的基础通道数，blocks_num为每一个layer的block数，stride为shortcut的步距（表示是否下采样）
     def _make_layer(self, block, planes, blocks_num, stride=1):
         downsample = None
-        # stride!=1 表示shortcut的步距，也就是指layer234，layer234需要对shortcut进行下采样； self.inplanes!=planes*block.expansion表示block的输入通道数和输出通道数不同
+        # stride!=1 表示shortcut的步距不为1，也就是指layer234，这三层需要对shortcut进行下采样；
+        # self.inplanes!=planes*block.expansion表示该block的输入通道数和输出通道数不同，也就是除第一个layer外每个layer的第一个block
         if stride != 1 or self.inplanes != planes * block.expansion:
             downsample = nn.Sequential(
                 nn.Conv2d(self.inplanes, planes * block.expansion,
@@ -163,12 +172,11 @@ class ResNet(nn.Module):
         layers = []
         # layer的第一个block单独处理（包括stride和shortcut的downsample）
         layers.append(block(self.inplanes, planes, stride, downsample))
-        # 其余block的输入变为原先输入通道的expansion倍
+        # 其余block的输入变为原先基础通道的4倍
         self.inplanes = planes * block.expansion
-        # layer的其余部分为block的重复(inplanes->inplanes/4->inplanes)*blocks_num，重复次数设为blocks_num（basicblock通道不变，bottleneck通道先减少再增加
+        # layer的其余部分为block的重复(inplanes->inplanes/4->inplanes)*blocks_num，重复次数设为blocks_num-1（basicblock通道不变，bottleneck通道先减少再增加
         for i in range(1, blocks_num):
             layers.append(block(self.inplanes, planes))
-
         return nn.Sequential(*layers)
 
     def forward(self, x):
@@ -196,7 +204,7 @@ def resnet18(pretrained=False, **kwargs):
     model = ResNet(BasicBlock, [2, 2, 2, 2], **kwargs)
 
     if pretrained:
-        pretrained_dict = torch.load('../Pretrained_model/resnet18.pth')
+        pretrained_dict = torch.load('../../Pretrained_model/resnet18.pth')
         model.load_state_dict(pretrained_dict)
         print('Petrained Model Have been loaded!')
     return model
@@ -261,4 +269,4 @@ if __name__ == '__main__':
     model = resnet18(pretrained=True).cuda()
     input_img = torch.Tensor(1,3,512,256).cuda()
     output_img = model(input_img)
-    print(output_img.shape)
+    # print(output_img.shape)

@@ -1,177 +1,117 @@
-'''
-@File    :   Unet_spp_se.py
-@Time    :   2021/07/06 16:37:51
-@Author  :   Tan Wenhao 
-@Version :   1.0
-@Contact :   tanritian1@163.com
-@License :   (C)Copyright 2021-Now, MIPAV Lab (mipav.net), Soochow University. All rights reserved.
-'''
-
 import sys
-sys.path.append("..")
-sys.path.append("../../")
-import os
+sys.path.append("../")
+sys.path.append("../..")
 import torch
-import torch.nn as nn
-from models.nets.resnet import resnet34
-from functools import partial
-import torch.nn.functional as F
-from models.utils.layers import unetConv2,unetUp,unetConv2_dilation,unetUp_cat,unetUp_add
-from models.utils.init_weights import init_weights
-import math
+from torch import nn
+from torch.nn import functional as F
+from models.nets import extractors as extractors
+import sys
+# import extractors
+
+'''
+# Network structure can be seen in '../network_structure_img/PSPNet.jpg'
+PSPNet为像素级场景解析提供了有效的全局上下文先验
+金字塔池化模块可以收集具有层级的信息，比全局池化更有代表性
+在计算量方面，我们的PSPNet并没有比原来的空洞卷积FCN网络有很大的增加
+在端到端学习中，全局金字塔池化模块和局部FCN特征可以被同时训练
+'''
+
+# 金字塔池化模块
+class PSPModule(nn.Module):
+    def __init__(self, features, out_features=1024, sizes=(1, 2, 3, 6)):
+        super().__init__()
+        self.stages = []
+        self.stages = nn.ModuleList([self._make_stage(features, size) for size in sizes])
+        self.bottleneck = nn.Conv2d(features * (len(sizes) + 1), out_features, kernel_size=1)
+        self.relu = nn.ReLU(inplace=True)
+
+    def _make_stage(self, features, size):
+        prior = nn.AdaptiveAvgPool2d(output_size=(size, size))
+        conv = nn.Conv2d(features, features, kernel_size=1, bias=False)
+        return nn.Sequential(prior, conv)
+
+    def forward(self, feats):
+        h, w = feats.size(2), feats.size(3)
+        set_priors = [F.interpolate(input=stage(feats), size=(h, w), mode='bilinear', align_corners=False) for stage in self.stages]
+        priors = set_priors + [feats]   # list+[] 相当于append
+        bottle = self.bottleneck(torch.cat(priors, 1))  # torch.cat的第一个参数需要是一个list或tuple，而nn.ModuleList()返回的就是一个list
+        return self.relu(bottle)
 
 
-nonlinearity = partial(F.relu, inplace=True)
+class PSPUpsample(nn.Module):
+    def __init__(self, x_channels, in_channels, out_channels):
+        super().__init__()
+        self.conv = nn.Sequential(
+            nn.BatchNorm2d(in_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels, out_channels, 3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, 3, padding=1),
+        )
+
+        self.conv2 = nn.Sequential(
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, 3, padding=1),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(out_channels, out_channels, 3, padding=1),
+        )
+
+        self.shortcut = nn.Conv2d(x_channels, out_channels, kernel_size=1)
+
+    def forward(self, x, up):
+        x = F.interpolate(input=x, scale_factor=2, mode='bilinear', align_corners=False)
+        p = self.conv(torch.cat([x, up], 1))
+        sc = self.shortcut(x)
+        p = p + sc
+        p2 = self.conv2(p)
+        return p + p2
+
 
 class Backbone(nn.Module):
-    
-    def __init__(self, in_channels=3,n_classes=1,feature_scale=2, is_deconv=True, is_batchnorm=True):
-        super(Backbone, self).__init__()
-        self.is_deconv = is_deconv
-        self.in_channels = in_channels
-        self.is_batchnorm = is_batchnorm
-        self.feature_scale = feature_scale
+    def __init__(self, num_classes=1,in_channels=1, sizes=(1, 2, 3, 6), psp_size=512, deep_features_size=1024, backend='resnet34',
+                 pretrained=True):
+        super().__init__()
+        self.conv1 = nn.Conv2d(in_channels, 64, kernel_size=7, stride=2, padding=3,
+                                   bias=False)
+        self.feats = getattr(extractors,backend)(pretrained=pretrained)# getattr获取py文件中的函数地址，extractor为resnet34的特征提取层
+        self.psp = PSPModule(psp_size, 1024, sizes)
 
-        filters = [64, 128, 256, 512, 1024]
-        filters = [int(x / self.feature_scale) for x in filters]
-
-        # downsampling
-        self.conv1 = unetConv2(self.in_channels, filters[0], self.is_batchnorm)
-        self.maxpool1 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv2 = unetConv2(filters[0], filters[1], self.is_batchnorm)
-        self.maxpool2 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv3 = unetConv2(filters[1], filters[2], self.is_batchnorm)
-        self.maxpool3 = nn.MaxPool2d(kernel_size=2)
-
-        self.conv4 = unetConv2(filters[2], filters[3], self.is_batchnorm)
-        self.maxpool4 = nn.MaxPool2d(kernel_size=2)
-
-        self.center = unetConv2(filters[3], filters[4], self.is_batchnorm)
-        self.spp = SPPblock(filters[4],filters[4])
-
-        # upsampling
-        self.up_add4 = unetUp_add(filters[4], filters[3], self.is_deconv)
-        self.up_add3 = unetUp_add(filters[3], filters[2], self.is_deconv)
-        self.up_add2 = unetUp_add(filters[2], filters[1], self.is_deconv)
-        self.up_add1 = unetUp_add(filters[1], filters[0], self.is_deconv)
-
-        # final conv (without any concat)
-        self.final_1 = nn.Conv2d(filters[0], n_classes, 1)
-        # self.final_2 = nn.Conv2d(filters[0], n_classes, 1)
-        # self.final_3 = nn.Conv2d(filters[0], n_classes, 1)
-
-        # initialise weights
-        for m in self.modules():
-            if isinstance(m, nn.Conv2d):
-                init_weights(m, init_type='kaiming')
-            elif isinstance(m, nn.BatchNorm2d):
-                init_weights(m, init_type='kaiming')
+        self.up_1 = PSPUpsample(1024, 1024+64, 512)
+        self.up_2 = PSPUpsample(512, 512+64, 256)
+        self.up_3 = PSPUpsample(256, 256+1, 64)
 
 
-    def forward(self, x): # 3x512x256
-        conv1 = self.conv1(x)       # 32x512x256
-        maxpool1 = self.maxpool1(conv1)  # 32*256*128
-
-        conv2 = self.conv2(maxpool1)     # 64*256x128
-        maxpool2 = self.maxpool2(conv2)  # 64*128*64
-
-        conv3 = self.conv3(maxpool2)     # 128*128*64
-        maxpool3 = self.maxpool3(conv3)  # 128*64*32
-
-        conv4 = self.conv4(maxpool3)     # 256*64*32
-        maxpool4 = self.maxpool4(conv4)  # 256*32*16
-
-        center = self.center(maxpool4)   # 512*32*16
-        spp = self.spp(center)           # 512*32*16
-        up4 = self.up_add4(spp,conv4)    # 256*64*32
-        up3 = self.up_add3(up4,conv3)    # 128*128*64
-        up2 = self.up_add2(up3,conv2)    # 64*256*128
-        up1 = self.up_add1(up2,conv1)    # 32*512*256
-        final_1 = self.final_1(up1)      # 1*512*256
-        final = torch.sigmoid(final_1)
-        return final
-
-
-class DecoderBlock(nn.Module):
-    def __init__(self, in_channels, n_filters):
-        super(DecoderBlock, self).__init__()
-
-        self.conv1 = nn.Conv2d(in_channels, in_channels // 4, 1)
-        self.norm1 = nn.BatchNorm2d(in_channels // 4)
-        self.relu1 = nonlinearity
-
-        self.deconv2 = nn.ConvTranspose2d(in_channels // 4, in_channels // 4, 3, stride=2, padding=1, output_padding=1)
-        self.norm2 = nn.BatchNorm2d(in_channels // 4)
-        self.relu2 = nonlinearity
-
-        self.conv3 = nn.Conv2d(in_channels // 4, n_filters, 1)
-        self.norm3 = nn.BatchNorm2d(n_filters)
-        self.relu3 = nonlinearity
-
-    def forward(self, x):
-        x = self.conv1(x)
-        x = self.norm1(x)
-        x = self.relu1(x)
-        x = self.deconv2(x)
-        x = self.norm2(x)
-        x = self.relu2(x)
-        x = self.conv3(x)
-        x = self.norm3(x)
-        x = self.relu3(x)
-        return x
-
-
-class SELayer(nn.Module):
-    def __init__(self, channel, reduction=16):
-        super(SELayer, self).__init__()
-        self.avg_pool = nn.AdaptiveAvgPool2d(1) # 先全局池化，获取全局上下文信息
-        self.fc = nn.Sequential(
-            nn.Linear(channel, channel // reduction, bias=False), # 通道缩减
-            nn.ReLU(inplace=True),
-            nn.Linear(channel // reduction, channel, bias=False), # 通道扩增
+        self.final = nn.Sequential(
+            nn.Conv2d(64, num_classes, kernel_size=1),
             nn.Sigmoid()
         )
 
-    def forward(self, x):
-        b, c, _, _ = x.size()
-        y = self.avg_pool(x).view(b, c)
-        y = self.fc(y).view(b, c, 1, 1)
-        return x * y.expand_as(x)
-
-
-class SPPblock(nn.Module):
-    def __init__(self, in_channels,out_channels):
-        super(SPPblock, self).__init__()
-        # self.pool1 = nn.MaxPool2d(kernel_size=[1, 1], stride=1)
-        self.pool2 = nn.MaxPool2d(kernel_size=[2, 2], stride=2)
-        self.pool3 = nn.MaxPool2d(kernel_size=[3, 3], stride=3)
-        self.pool4 = nn.MaxPool2d(kernel_size=[6, 6], stride=6)
-        self.conv = nn.Conv2d(in_channels=in_channels, out_channels=in_channels, kernel_size=1, padding=0)
-        self.conv_smoonth = nn.Conv2d(in_channels=3*in_channels+out_channels, out_channels=out_channels, kernel_size=1,bias=False)
-        self.se = SELayer(3*in_channels + out_channels)
-
 
     def forward(self, x):
-        self.in_channels, h, w = x.size(1), x.size(2), x.size(3)
-        # self.layer1 = F.interpolate(self.conv(self.pool1(x)), size=(h, w), mode='bilinear',align_corners=True)
-        self.layer2 = F.interpolate(self.conv(self.pool2(x)), size=(h, w), mode='bilinear',align_corners=True)
-        self.layer3 = F.interpolate(self.conv(self.pool3(x)), size=(h, w), mode='bilinear',align_corners=True)
-        self.layer4 = F.interpolate(self.conv(self.pool4(x)), size=(h, w), mode='bilinear',align_corners=True)
-        out = torch.cat([self.layer2, self.layer3, self.layer4, x], 1)
-        out1 = self.se(out)
-        out1 = self.conv_smoonth(out1)
-        return out1
+        x1 = self.conv1(x)          # 64,256,256
+        f = self.feats.bn1(x1)
+        f = self.feats.relu(f)
+        f = self.feats.maxpool(f)   # 64, 128, 128
+        x2 = self.feats.layer1(f)    # 64, 128, 128
+        f = self.feats.layer2(x2)    # 128, 64, 64
+        f = self.feats.layer3(f)    # 256, 64, 64
+        f = self.feats.layer4(f)    # 512, 64, 64
+        p = self.psp(f)             # 1024, 64, 64
+
+        p = self.up_1(p,x2)         # 512,128,128
+
+        p = self.up_2(p,x1)         # 256,256,256
+
+        p = self.up_3(p,x)          # 32,512,512
+
+        p = self.final(p)
+        return p
 
 
-if __name__ == '__main__':
-#     os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-#     net = UNet_1(in_channels=1, n_classes=3, is_deconv=True).cuda()
-#     print(net)
-    x = torch.rand((1, 3, 512, 256)).cuda()
-    net = Backbone(in_channels=3,n_classes=1).cuda()
-    output = net(x)
-    # forward = net.forward(x)
-    # print(forward)
-    # print(type(forward))
+if __name__ == "__main__":
+    input_img = torch.rand((4,1,256,256)).cuda()
+    net = Backbone(num_classes=1,in_channels=1).cuda()
+    out = net(input_img)
