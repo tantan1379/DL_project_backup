@@ -78,7 +78,7 @@
 
 #### **Merge&Split**
 
-* cat:`torch.cat([a,b],dim) `两个拼接的tensor必须在dim维之外的维度均相等
+* cat:`torch.cat([a,b],dim) `两个拼接的tensor必须在dim维之外的维度均相等，cat的第一个参数需要是一个list或tuple
 
 #### **Math**
 

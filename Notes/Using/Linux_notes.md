@@ -206,19 +206,19 @@ Linux中，每个执行的程序称为一个进程，每个进程都分配一个
 
 **相关指令：**
 
-`service servicename [start|stop|restart|reload|status]`	服务管理（开启、暂停、重启、查看状态）
-
 `chkconfig --list [| grep servicename]`	查看服务的各个运行级别是自启动还是关闭
 
 `chkconfig --level x servicename on/off`	修改某服务在某一运行级别的自启动状态
 
-`ststemctl [start|stop|restart|status] servicename`	服务管理（开启、暂停、重启、查看状态） 
+`service servicename [start|stop|restart|reload|status]`	服务管理（开启、暂停、重启、查看状态）
 
 `ls -l /usr/lib/systemd/system | grep servicename`	查看systemctl下服务的信息
 
+`systemctl [start|stop|restart|status|enable|disable|reload] servicename`	服务管理（开启/暂停/重启/查看状态/设置开机启动/设置开机不启动/重新加载配置文件） 
+
 `systemctl list-unit-files [| grep servicename]`	查看服务开机启动状态
 
-`systemctl enable/disable servicename`	设置/关闭服务开机启动
+`systemctl  servicename`	设置/关闭服务开机启动
 
 `systemctl is-enabled servicename`	查询某个服务是否是自启动的
 
@@ -226,9 +226,10 @@ Linux中，每个执行的程序称为一个进程，每个进程都分配一个
 
 **注意点：**
 
-* centos 7.0使用systemctl而不是用service
+* centos 7.0大部分服务使用systemctl而不是用service
 * service指令管理的服务在/etc/init.d查看
-* systemctl指令管理的服务在/usr/lib/systemd/system查看
+* 输入setup可查看所有服务（带*表示服务自启动）
+* systemctl指令管理的服务在/usr/lib/systemd/system查看，service指令管理的服务在/etc/init.d中查看
 
 ---
 
@@ -341,8 +342,6 @@ vim常用的三种模式：正常模式、插入模式、命令行模式。
 
 
 
-
-
 **任务调度编辑**
 
 在个人调度内输入：`*/1 * * * * command`	表示在每个小时的每分钟执行command指令	e.g. `*/1**** ls -l /etc/ > /tmp/to.txt`表示每小时的每分钟将/etc/目录下的内容写入到/tmp/to.txt中
@@ -390,7 +389,6 @@ edit(e.g.):
 ```sh
 crontab -e 
 0 2 * * * mysqldump -u root -proot test > /home/db.bak
-
 ```
 
 
@@ -504,7 +502,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 ### 系统指令
 
-##### 关机和重启
+* **关机和重启**
 
 `shutdown -h now`  或` init 0`	立刻关机
 
@@ -528,18 +526,15 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 
 
-
-
-
-##### 用户管理
+* **用户管理**
 
 `su - usr`	切换用户（`su - root` 切换到管理员身份）
 
-`useradd usr`	添加用户（别忘了添加用户名否则是为当前的用户设置密码）
+`useradd usr`	添加用户
 
 `useradd -d dir usr`	在指定目录创建用户的主目录
 
-`passwd usr`	为用户设置密码
+`passwd usr`	为用户设置密码(不设置密码，用户不成立)
 
 `userdel usr`	删除用户保留主目录（一般选择保留）
 
@@ -559,11 +554,11 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 
 
-##### 组管理
+* **组管理**
 
 `groupadd group`	新增组
 
-`groupdel group`	删除组  
+`groupdel group`	删除组
 
 `useradd -g group usr` 	添加用户的同时添加组（注意先写组再写用户）
 
@@ -571,7 +566,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 
 
-##### 其他设置
+* **其他设置**
 
 0：关机		1：单用户（找回丢失密码）		2：多用户状态没有网络服务		**3：多用户状态有网络服务（工作常用）**
 
@@ -591,7 +586,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 
 
-##### 找回root密码
+* **找回root密码**
 
 步骤：
 
@@ -617,7 +612,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 ### 文件目录指令
 
-##### 打印信息
+* **打印信息**
 
 `pwd`	显示当前所在的绝对目录
 
@@ -645,7 +640,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 
 
-##### 查看文件向
+* **查看文件向**
 
 `cat file`	仅查看文件内容（类似于vim，但更安全）	
 
@@ -668,7 +663,7 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 
 
-##### 查找文件或指令
+* **查找文件或指令**
 
 `find [range] -name filename`	按指定文件名查找，如果存在则打印文件路径
 
@@ -688,7 +683,7 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 
 
-##### 切换目录
+* **切换目录**
 
 `cd path`	切换到指定目录（注意绝对路径前加`/`，相对路径不用加或用`./path`）
 
@@ -702,7 +697,7 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 
 
-##### 删除、创建、移动、拷贝
+* **删除、创建、移动、拷贝**
 
 `rmdir /path/fold`	删除空目录
 
@@ -722,7 +717,7 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 
 
-##### 压缩和解压
+* **压缩和解压**
 
 `yum install command`	安装软件（需联网）
 
@@ -742,7 +737,7 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 
 
-##### 软链接
+* **软链接**
 
 软链接又称为符号链接，类似于windows下的快捷方式，存放着链接其他文件的路径
 
@@ -758,9 +753,9 @@ e.g.
 
 
 
-##### 修改权限
+* **修改权限**
 
-**修改文件**
+* **修改文件**
 
 `chmod u=rwx,g=rx,o=x file/dir` 	给文件/目录的u、g、o分别赋予权限
 
@@ -770,13 +765,13 @@ e.g.
 
 `chmod 751 file/dir`	相当于`chmod u=rwx,g=rx,o=x file/dir`
 
-**修改所有者**
+* **修改所有者**
 
 `chown newowner file/dir`	改变文件所有者 【[-R] 可以对文件夹下的所有内容递归实现修改】
 
 `chown newowner:newgroup file/dir`	改变文件所有者和所在组	
 
-**修改所有组**
+* **修改所有组**
 
 `chgrp newgroup file/dir`	修改所在组【[-R] 可以对文件夹下的所有内容递归实现修改】
 
@@ -801,53 +796,11 @@ e.g.
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 ---
 
 ### 语法
 
-##### 管道
+* **管道**
 
 操作符为`|`，处理由前一个指令传出的正确输出指令到下一个命令
 
@@ -863,7 +816,7 @@ e.g.
 
 
 
-##### 重定向
+* **重定向**
 
 操作符为`>`和`>>`，`>`表示覆盖写（如果文件不存在则自动创建），`>>`表示追加
 
