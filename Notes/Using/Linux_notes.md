@@ -22,7 +22,7 @@ swap分区作用：swap类似于windows的虚拟内存文件，可以临时充�
 
 
 
-### 网络连接的三种模式
+### 网络连接的三 种模式
 
 1、桥接模式：虚拟系统可以和外部系统功能通讯，但是容易产生ip冲突
 
@@ -172,70 +172,49 @@ hosts是一个文本文件（lInux下位于/etc下），用于记录IP和hostnam
 
 
 
-### 进程(*)
 
-Linux中，每个执行的程序称为一个进程，每个进程都分配一个ID号。每个进程可能以两种方式存在：前台和后台。前台指用户目前屏幕上可以进行操作的进程。后台是实际在操作的进程。
-
-一般系统的服务都是以后台进程的方式存在，通常常驻在系统中，关机才会停止。
-
-
-
-**相关指令:**
-
-`ps -aux`	查看当前系统正在执行的进程。(可用grep管道进一步筛选) [`ps -a` 显示当前终端的所有进程信息		`ps -u` 以用户的格式显示进程信息	`ps -x` 显示后台进程运行的参数]
-
-<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210924105822260.png" alt="image-20210924105822260" style="zoom: 33%;" />
-
-`ps -ef`	以全格式显示当前所有进程。
-
-<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210924113200335.png" alt="image-20210924113200335" style="zoom: 33%;" />
-
-`kill [option] PID `	通过**进程号**杀死/终止进程	[-9 强制停止进程，比如强制关闭正在运行的终端需要加-9]
-
-`killall processname`	杀死**指定名字**的所有进程
-
-`pstree`	显示进程名组成的树	[-p 同时显示PID进程号 -u 同时显示进程用户]
-
-
-
-### 服务
-
-服务本质就是进程，但运行在后台，通常会监听某个端口，等待其他程序的请求，因此又称为守护进程。
-
-
-
-**相关指令：**
-
-`chkconfig --list [| grep servicename]`	查看服务的各个运行级别是自启动还是关闭
-
-`chkconfig --level x servicename on/off`	修改某服务在某一运行级别的自启动状态
-
-`service servicename [start|stop|restart|reload|status]`	服务管理（开启、暂停、重启、查看状态）
-
-`ls -l /usr/lib/systemd/system | grep servicename`	查看systemctl下服务的信息
-
-`systemctl [start|stop|restart|status|enable|disable|reload] servicename`	服务管理（开启/暂停/重启/查看状态/设置开机启动/设置开机不启动/重新加载配置文件） 
-
-`systemctl list-unit-files [| grep servicename]`	查看服务开机启动状态
-
-`systemctl  servicename`	设置/关闭服务开机启动
-
-`systemctl is-enabled servicename`	查询某个服务是否是自启动的
-
-
-
-**注意点：**
-
-* centos 7.0大部分服务使用systemctl而不是用service
-* service指令管理的服务在/etc/init.d查看
-* 输入setup可查看所有服务（带*表示服务自启动）
-* systemctl指令管理的服务在/usr/lib/systemd/system查看，service指令管理的服务在/etc/init.d中查看
 
 ---
 
 
 
 ## 二、实操
+
+### 语法
+
+* **管道**
+
+操作符为`|`，处理由前一个指令传出的正确输出指令到下一个命令
+
+注意点：
+
+1、管道命令只处理前一个命令的正确输出，不处理错误输出；
+
+2、管道命令右边的命令必须能够接收标准输入流命令。
+
+e.g.
+
+`cat -n filename | more`	以全屏形式显示filename的内容
+
+
+
+* **重定向**
+
+操作符为`>`和`>>`，`>`表示覆盖写（如果文件不存在则自动创建），`>>`表示追加
+
+语法：
+
+`ls -l > file`	将列表的内容写入到file中（覆盖写）
+
+`ls -al >> file`	将列表的内容（去除.开头的文件）追加到file中（追加）
+
+`cat file1 > file2`	将file1的内容覆盖到file2
+
+`echo context >> file`	在file末尾写入context
+
+
+
+---
 
 ### 创建screen会话(远程专用)
 
@@ -256,7 +235,7 @@ Linux中，每个执行的程序称为一个进程，每个进程都分配一个
 
 `screen -S yourname -X quit`	删除叫yourname的session
 
-`screen -wipe`	清除dead的会话
+`screen -wipe`	清除dead的会话 	
 
 `screen -x`	用于会话窗口的共享，比如多台主机连接到该服务器用户端，可以同时共享输出结果
 
@@ -270,8 +249,6 @@ Linux中，每个执行的程序称为一个进程，每个进程都分配一个
 
 ---
 
-
-
 ### Vim的使用(文本编辑器)
 
 vim是vi的增强版，是linux下的文本编辑器，具有程序编辑的能力，可用字体颜色辨别语法的正确性。
@@ -284,7 +261,7 @@ vim常用的三种模式：正常模式、插入模式、命令行模式。
 
 在其他模式下，输入`esc`进入正常模式。可以使用上下左右移动光标，可以使用删除字符和删除整行，也可以使用复制粘贴。
 
-快捷键：
+交互界面：
 
 - **输入`u`（小写）撤销刚才的工作**
 - **输入`yy`拷贝当前行（`5yy`拷贝当前行向下的5行），`p`粘贴**
@@ -646,17 +623,17 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 `cat -n file | more` 	该写法被称为管道命令。more指令是基于vi的文本过滤器，以全屏方式按页显示文本文件内容，**[-n]表示显示行号**
 
-more快捷键：**空格（向下一页） enter（向下一行） q（返回，不再显示） =（显示当前行号） :f（输出文件名和行号）**
+more交互界面：**空格（向下一页） enter（向下一行） q（返回，不再显示） =（显示当前行号） :f（输出文件名和行号）**
 
 `cat -n file | less`	less命令和more指令类似，但更强大。在显示文件内容时，根据显示需要加载内容，对显示大型文件有较高效率。
 
-less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字符串（向下查询[n向下 N向上]) ?字符串（向上搜寻） q(返回)**
+less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /字符串（向下查询[n向下 N向上]) ?字符串（向上搜寻） q(返回)**
 
 `head file`	默认显示文件的前10行的内容	(`head -n x file`	**[-n]表示选择前x行的内容**)
 
 `tail file`	默认显示文件的后10行内容	（`tail -n x file`	[-n]表示选择后x行的内容 `tail -f file`	**[-f]表示实时监控文件的内容**)
 
-`wc file`	查看文件的行数、单词数和字节数	(**[-l] 只显示行数	[-w] 只显示字数	[-c] 只显示字节数**	
+`wc file`	查看文件的行数、单词数和字节数	【[-l] 只显示行数	[-w] 只显示字数	[-c] 只显示字节数】
 查看目录下所有文件的个数: `ls -l | grep "^-" | wc -l`)
 
 
@@ -727,9 +704,9 @@ less快捷键：**空格或pagedown（向下一页）pageup(向上一页)  /字�
 
 `zip [option] des_file.zip fi le`	压缩	[-r 递归压缩]	(将/home下的所有文件和子文件夹压缩成myhome.zip：`zip -r /home/myhome.zip /home/`)
 
-`unzip [option] file.zip`	解压	【-d 指定解压后文件的存放目录】 （将myhome.zip解压到/opt/tmp目录下：`zip -d /opt/tmp /home/myhome.zip`）
+`unzip [option] file.zip`	解压	【[-d] 指定解压后文件的存放目录】 （将myhome.zip解压到/opt/tmp目录下：`zip -d /opt/tmp /home/myhome.zip`）
 
-`tar [option] file.tar.gz`	打包或解压目录	[-c 打包	-x 解包	-v 显示正在处理的文件名	-z 通过gzip支持的压缩或解压缩	-f 指定压缩后的文件名]
+`tar [option] file.tar.gz`	打包或解压目录	【[-c] 打包	[-x] 解包	[-v] 显示正在处理的文件名	[-z] 通过gzip支持的压缩或解压缩	[-f] 指定压缩后的文件名]
 压缩：`tar -zcvf file.tar.gz file1 file2`	将file1和file2压缩为file.tar.gz
 解压到当前路径：`tar -zxvf file.tar.gz`	(解压到指定路径：`tar -zxvf file.tar.gz -C /des_path`)
 
@@ -784,51 +761,122 @@ e.g.
 
 
 
+---
+
+### 服务管理
+
+服务本质就是进程，但运行在后台，通常会监听某个端口，等待其他程序的请求，因此又称为守护进程。
 
 
 
+**相关指令：**
+
+`netstat - atulnp`	显示所有端口和所有对应的程序
+
+`chkconfig --list [| grep servicename]`	查看服务的各个运行级别是自启动还是关闭
+
+`chkconfig --level x servicename on/off`	修改某服务在某一运行级别的自启动状态
+
+`service servicename [start|stop|restart|reload|status]`	服务管理（开启、暂停、重启、查看状态）
+
+`ls -l /usr/lib/systemd/system | grep servicename`	查看systemctl下服务的信息
 
 
 
+`systemctl [start|stop|restart|status|enable|disable|reload] servicename`	服务管理（开启/暂停/重启/查看状态/设置开机启动/设置开机不启动/重新加载配置文件） 
+
+`systemctl list-unit-files [| grep servicename]`	查看服务开机启动状态
+
+`systemctl is-enabled servicename`	查询某个服务是否是自启动的
 
 
 
+**firewall指令：**
+
+`firewall-cmd --permanent --add-port=portnumber/protocol`	打开端口(需要重新载入)
+
+`firewall-cmd --permanent --remove-port=portnumber/protocol`	关闭端口(需要重新载入)
+
+`firewall-cmd --reload`	重新载入（reload后打开或关闭端口才生效）
+
+`firewall-cmd --query-port=portnumber/protocol`	查询端口是否开放
+
+
+
+**注意点：**
+
+* centos 7.0大部分服务使用systemctl而不是用service
+* service指令管理的服务在/etc/init.d查看
+* 输入setup可查看所有服务（带*表示服务自启动）
+* systemctl指令管理的服务在/usr/lib/systemd/system查看，service指令管理的服务在/etc/init.d中查看
+* systemctl打开或者关闭的服务在重启后会恢复默认状态，需要使用enable/disable对某个服务进行自启动开启或关闭
 
 
 
 ---
 
-### 语法
+### 进程管理(*)
 
-* **管道**
+Linux中，每个执行的程序称为一个进程，每个进程都分配一个ID号。每个进程可能以两种方式存在：前台和后台。前台指用户目前屏幕上可以进行操作的进程。后台是实际在操作的进程。
 
-操作符为`|`，处理由前一个指令传出的正确输出指令到下一个命令
-
-注意点：
-
-1、管道命令只处理前一个命令的正确输出，不处理错误输出；
-
-2、管道命令右边的命令必须能够接收标准输入流命令。
-
-e.g.
-
-`cat -n filename | more`	以全屏形式显示filename的内容
+一般系统的服务都是以后台进程的方式存在，通常常驻在系统中，关机才会停止。
 
 
 
-* **重定向**
+**相关指令:**
 
-操作符为`>`和`>>`，`>`表示覆盖写（如果文件不存在则自动创建），`>>`表示追加
+`ps -aux`	查看当前系统正在执行的进程。(可用grep管道进一步筛选) [`ps -a` 显示当前终端的所有进程信息		`ps -u` 以用户的格式显示进程信息	`ps -x` 显示后台进程运行的参数]
 
-语法：
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210924105822260.png" alt="image-20210924105822260" style="zoom: 33%;" />
 
-`ls -l > file`	将列表的内容写入到file中（覆盖写）
+`ps -ef`	以全格式显示当前所有进程。
 
-`ls -al >> file`	将列表的内容（去除.开头的文件）追加到file中（追加）
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210924113200335.png" alt="image-20210924113200335" style="zoom: 33%;" />
 
-`cat file1 > file2`	将file1的内容覆盖到file2
+`kill [option] PID `	通过**进程号**杀死/终止进程	[-9 强制停止进程，比如强制关闭正在运行的终端需要加-9]
 
-`echo context >> file`	在file末尾写入context
+`killall processname`	杀死**指定名字**的所有进程
+
+`pstree`	显示进程名组成的树	[-p 同时显示PID进程号 -u 同时显示进程用户]
+
+
+
+
+
+**进程监控：**
+
+`top [-option]`	**动态**显示正在执行的进程。（自动更新）【option：`-d second` 表示每个second秒更新一次进程信息，默认为3s	`-i`使top指令不显示闲置或僵死进程	`-p pid` 通过监控进程ID监控某个进程状态】
+top的交互界面：
+**P 使进程按CPU使用率排序（默认）** 
+**M 按内存使用率排序**	
+**N 以PID排序**	
+**u+username 查询指定用户的进程情况**	
+**k+pid 终止指定进程**	
+**q 退出top**
+
+ 
+
+**网络监控：**
+
+`netstat [-option]`	监控系统网络情况【option: [-an]按一定顺序排列输出 [-p] 显示哪个进程调用】
+Proto:使用的网络协议(tcp/udp)	Local Address:本地地址:本地端口（Linux内部的网络地址）	Foreign Address:外部地址:外部端口（不同用户用相同地址、不同端口）
+
+
+
+
+
+### 软件包管理
+
+**rpm包管理：**
+
+rpm是用于互联网下载包的打包和安装工具，可以生成具有.RPM扩展名的文件。RPM可以通用于Linux的各个发行版本。
+
+rpm包基本格式：firefox-60.2.2-1.el7.centos.x86_64
+firefox：包名	60.2.2-1：版本号	el7.centos.x86_64：适用操作系统（i686/i386表示32位系统，noarch表示通用）
+
+**相关指令：**
+
+`rpm -qa`	查看系统中安装所有的rpm包	【[-q] 查询软件包是否安装	[-qi] 包括软件包信息	[-ql] 查询软件包中含有的文件	[-qf filepath] 查看文件所属软件包】
 
 
 

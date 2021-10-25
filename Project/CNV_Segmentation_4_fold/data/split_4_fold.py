@@ -12,9 +12,9 @@ import os
 import glob
 import shutil
 
-img_path = r"F:\Dataset\ZSQ\ZSQ_seg_png\img"
-mask_path = r"F:\Dataset\ZSQ\ZSQ_seg_png\mask"
-des_path = r"F:\Dataset\ZSQ\ZSQ_seg_png_4_fold"
+img_path = r"F:\Dataset\ZSQ\ZSQ_all_png\img"
+mask_path = r"F:\Dataset\ZSQ\ZSQ_all_png\mask"
+des_path = r"F:\Dataset\ZSQ\ZSQ_all_png_4_fold"
 
 pat_list = list()
 img_path_list = list()
@@ -34,3 +34,4 @@ for i in range(1,5):
         os.mkdir(des_path+os.sep+"img"+os.sep+"f"+str(i))
     if not os.path.exists(des_path+os.sep+"mask"+os.sep+"f"+str(i)):
         os.mkdir(des_path+os.sep+"mask"+os.sep+"f"+str(i))
+

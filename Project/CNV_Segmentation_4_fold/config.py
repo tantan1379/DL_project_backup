@@ -31,7 +31,7 @@ class cnv_single_config(object):
     use_gpu = True
     # 路径相关
     data = r'F:\Dataset\ZSQ'    # 数据存放的根目录 *
-    dataset = 'ZSQ_seg_png_4_fold'      # 数据库名字(需修改成自己的数据名字) *
+    dataset = 'ZSQ_all_png_4_fold'      # 数据库名字(需修改成自己的数据名字) *
     log_dirs = './results/save/'          # 存放tensorboard log的文件夹() *
     save_model_path = './logs/'+net_work  # 保存模型的文件夹
     result_path = './results/img_seg/'+net_work  # 保存分割图像的文件夹
