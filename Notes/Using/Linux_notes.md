@@ -856,12 +856,10 @@ top的交互界面：
 
  
 
-**网络监控：**
+**网络端口监控：**
 
 `netstat [-option]`	监控系统网络情况【option: [-an]按一定顺序排列输出 [-p] 显示哪个进程调用】
 Proto:使用的网络协议(tcp/udp)	Local Address:本地地址:本地端口（Linux内部的网络地址）	Foreign Address:外部地址:外部端口（不同用户用相同地址、不同端口）
-
-
 
 
 

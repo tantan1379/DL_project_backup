@@ -316,7 +316,7 @@ cv2.imshow(wname,img)     #显示图像
 cv2.imwrite(filepath，img，num) # 保存一张图片（num表示压缩级别）
 ```
 
-#### **SimpITK**
+#### **SimpleITK**
 
 ```python
 import SimpleITK as sitk
