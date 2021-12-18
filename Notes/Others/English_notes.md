@@ -82,6 +82,8 @@ Alzheimer’s disease 阿尔兹海默症(老年痴呆)
 
 coordinate 坐标
 
+ablation experiment 消融实验
+
 access-specifier 访问修饰符
 
 cardinality 基数
@@ -272,7 +274,7 @@ be referred to as.. 被称作
 
 To the best of our knowledge 据我们所知
 
-ablation experiment 消融实验
+
 
 in line with 符合于...
 

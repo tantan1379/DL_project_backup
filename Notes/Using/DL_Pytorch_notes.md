@@ -18,7 +18,7 @@
   （5）pytorch中，参数矩阵w一般将输出后的通道写前面，即y=x@w.t() 注意：.t()方法只适合于2d的tensor
   （6）dataloader的迭代中，每次循环（每个batch）输入到网络的img的shape为(batchsize,channel,height,width)，label(target)的shape为(batchsize,)，经过model输出后output的shape为(batchsize,num_class)[实际上output是用数值大小描述每种类预测的概率，需要通过max等函数得到真实的预测值]
 
-------
+---
 
 ## Anaconda
 
@@ -28,7 +28,7 @@
 
 
 
-
+---
 
 ## Tensor
 
