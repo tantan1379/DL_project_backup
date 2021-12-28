@@ -231,9 +231,9 @@ print(list(a))
 
 ## 链表
 
-### 一、原理：
+### 原理
 
-**对比数组和链表：**
+**对比数组和链表**
 
 **数组：**
 数组的优点：
@@ -287,84 +287,9 @@ print(list(a))
 
 
 
-### 二、程序实现(c++)
-
-单向链表：只能通过前一个节点知道后一个元素的地址
-
-1、结构体定义：
-
-```c++
-    struct ListNode
-    {
-        float val;
-        ListNode *next;
-        //构造函数
-        ListNode():val(0),next(nullptr){}
-        ListNode(float x):val(x),next(nullptr){}
-        ListNode(float x,ListNode* next):val(x),next(next){}
-    };
-```
-
-2、链表初始化：
-
-```C++
-ListNode* Init_LinkList(vector<int>& arr) {//引用传递
-	if (arr.size() == 0) {
-		cout << "警告，链表为空！" << endl;
-		return nullptr;
-	}
-	ListNode* header = new ListNode(arr[0]);
-	ListNode* pCurrent = header;
-	for (int i = 1; i < arr.size(); i++) {
-		pCurrent->next = new ListNode(arr[i]);
-		pCurrent = pCurrent->next;
-	}
-	return header;
-}
-```
-
-3、链表遍历（打印链表）：
-
-```C++
-void Foreach_LinkList(ListNode* header) {
-	if (nullptr == header) {
-		cout << "This is an empty LinkList" << endl;
-		return;
-	}
-	ListNode* pCurrent = header->next;
-	while (pCurrent) {
-		cout << pCurrent->val << " ";
-		pCurrent = pCurrent->next;
-	}
-}
-```
-
-4、在指定值的位置插入新节点：
-
-```C++
-void InsertByValue_LinkList(ListNode* header, float oldval, float newval) {
-	if (nullptr == header) {
-		cout << "This is an empty LinkList" << endl;
-		return;
-	}
-	//创建两个辅助指针变量
-	ListNode* pPrev = header;
-	ListNode* pCurrent = header->next;
-	while (pCurrent) {
-		if (pCurrent->val == oldval) {
-			break;
-		}
-		pPrev = pPrev->next;
-		pCurrent = pCurrent->next;
-	}
-	//如果pCurrent为NULL则说明链表中不存在值为oldval的节点，插入到链表的尾部
-	pPrev->next = new ListNode(newval, pCurrent);//pPrev->next = newNode; newNode->next = pCurrent;
-}
-```
 
 
-
-### 三、LeetCode:
+### LeetCode
 
 #### [2. 两数相加](https://leetcode-cn.com/problems/add-two-numbers/)
 
@@ -705,7 +630,7 @@ def deleteNode(node):
 
 散列表（Hash table），是根据关键码值(Key value)而直接进行访问的数据结构。也就是说，它通过把关键码值映射到表中一个位置来访问记录，以加快**查找**的速度。这个映射函数叫做散列函数，存放记录的数组叫做散列表。
 
-### 一、原理：
+### 原理
 
 **存储位置=f(关键字)**
 
@@ -725,7 +650,7 @@ def deleteNode(node):
 
 
 
-### 二、LeetCode
+### LeetCode
 
 #### [1. 两数之和](https://leetcode-cn.com/problems/two-sum/)
 
@@ -755,12 +680,12 @@ def twoSum(self, nums, target):
 
 
 
-## 栈和队列
+## 堆栈和队列
 
 python中用**列表List**模拟栈和队列的功能： 
 栈在顶部先进后出（FILO），通常用List的最右端模拟栈的顶部 
 
-### 一、栈： 
+### 栈
 
 基本功能：
   push(x) -- 元素 x 入栈 -> q.append(x) 
@@ -770,7 +695,7 @@ python中用**列表List**模拟栈和队列的功能：
 
 
 
-### 二、队列： 
+### 队列
 
 基本功能：
   push(x) 将元素 x 推到队列的末尾 -> q.append(x) 
@@ -780,7 +705,7 @@ python中用**列表List**模拟栈和队列的功能：
 
 
 
-### 三、LeetCode
+### LeetCode
 
 #### [225. 用队列实现栈](https://leetcode-cn.com/problems/implement-stack-using-queues/)
 
