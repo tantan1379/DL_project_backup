@@ -227,11 +227,91 @@ print(list(a))
 
 
 
+---
+
+## 回溯法
+
+回溯法是暴力穷举算法，穷举的过程就是遍历一棵多叉树的过程。
+
+多叉树代码框架：
+
+```java
+void traverse(TreeNode root){
+	if(root==null){
+        return;
+    }
+    for(TreeNode child:root.children){
+        traverse(child);
+    }
+}
+```
+
+回溯算法代码框架：
+
+```java
+List<List<Integer>> res = new Link;
+void backtrack(路径， 选择列表){
+    if(结束条件){
+        result.add(路径);
+        return;
+    }
+    
+    for(选择:选择列表){
+        做选择;
+        backtrack(路径, 选择列表);
+        撤销选择;
+    }
+}
+```
+
+数字全排列：
+
+```java
+public class backtrack {
+    public static void main(String[] args) {
+        Solution solution = new Solution();
+        System.out.println(solution.permute(new int[]{10, 13, 14, 15}));
+    }
+}
+
+class Solution{
+    List<List<Integer>> res = new LinkedList<>();
+
+    public List<List<Integer>> permute(int[] nums){
+        LinkedList<Integer> track = new LinkedList<>();
+        backtrack(nums,track);
+        return res;
+    }
+
+    void backtrack(int[] nums, LinkedList<Integer> track){
+        if(track.size()==nums.length){
+            res.add(new LinkedList(track));
+            return;
+        }
+
+        for(int i=0;i<nums.length;i++){
+            if(track.contains(nums[i])){
+                continue;
+            }
+            track.add(nums[i]);
+            backtrack(nums,track);
+            track.removeLast();
+        }
+    }
+}
+```
+
+
+
+
+
+
+
 
 
 ## 链表
 
-### 原理
+原理
 
 **对比数组和链表**
 
@@ -291,7 +371,7 @@ print(list(a))
 
 ### LeetCode
 
-#### [2. 两数相加](https://leetcode-cn.com/problems/add-two-numbers/)
+[2. 两数相加](https://leetcode-cn.com/problems/add-two-numbers/)
 
 给你两个 **非空** 的链表，表示两个非负的整数。它们每位数字都是按照 **逆序** 的方式存储的，并且每个节点只能存储 **一位** 数字。
 请你将两个数相加，并以相同形式返回一个表示和的链表。
@@ -322,7 +402,7 @@ def addTwoNumbers(l1, l2):
 
 
 
-#### [19. 删除链表的倒数第 N 个结点](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
+[19. 删除链表的倒数第 N 个结点](https://leetcode-cn.com/problems/remove-nth-node-from-end-of-list/)
 
 给你一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点。
 
@@ -353,7 +433,7 @@ def removeNthFromEnd(head, n):
 
 
 
-#### [21. 合并两个有序链表](https://leetcode-cn.com/problems/merge-two-sorted-lists/)
+[21. 合并两个有序链表](https://leetcode-cn.com/problems/merge-two-sorted-lists/)
 
 将两个升序链表合并为一个新的 **升序** 链表并返回。新链表是通过拼接给定的两个链表的所有节点组成的。
 
@@ -386,7 +466,7 @@ def mergeTwoLists(l1, l2):
 
 
 
-#### [24. 两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
+[24. 两两交换链表中的节点](https://leetcode-cn.com/problems/swap-nodes-in-pairs/)
 
 给定一个链表，两两交换其中相邻的节点，并返回交换后的链表。
 
@@ -415,7 +495,7 @@ def swapPairs(head: ListNode):
 
 
 
-#### [61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)
+[61. 旋转链表](https://leetcode-cn.com/problems/rotate-list/)
 
 给定一个链表，旋转链表，将链表每个节点向右移动 *k* 个位置，其中 *k* 是非负数。
 
@@ -476,7 +556,7 @@ def rotateRight_(head, k):
 
 
 
-#### [143. 重排链表](https://leetcode-cn.com/problems/reorder-list/)
+[143. 重排链表](https://leetcode-cn.com/problems/reorder-list/)
 
 给定一个单链表 *L*：*L*0→*L*1→…→*L**n*-1→*L*n ，
  将其重新排列后变为： *L*0→*L**n*→*L*1→*L**n*-1→*L*2→*L**n*-2→…
@@ -537,7 +617,7 @@ def reorderList_(head):
 
 
 
-#### [206. 反转链表](https://leetcode-cn.com/problems/reverse-linked-list/)
+[206. 反转链表](https://leetcode-cn.com/problems/reverse-linked-list/)
 
 反转一个单链表。
 
@@ -562,7 +642,7 @@ def reverseList(head):
 
 
 
-#### [234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
+[234. 回文链表](https://leetcode-cn.com/problems/palindrome-linked-list/)
 
 请判断一个链表是否为回文链表。
 
@@ -607,7 +687,7 @@ def isPalindrome_(head):
     return True
 ```
 
-#### [面试题 02.03. 删除中间节点](https://leetcode-cn.com/problems/delete-middle-node-lcci/)
+[面试题 02.03. 删除中间节点](https://leetcode-cn.com/problems/delete-middle-node-lcci/)
 
 实现一种算法，删除单向链表中间的某个节点（即不是第一个或最后一个节点），假定你只能访问该节点。
 
@@ -652,7 +732,7 @@ def deleteNode(node):
 
 ### LeetCode
 
-#### [1. 两数之和](https://leetcode-cn.com/problems/two-sum/)
+[1. 两数之和](https://leetcode-cn.com/problems/two-sum/)
 
 给定一个整数数组 `nums` 和一个整数目标值 `target`，请你在该数组中找出 **和为目标值** 的那 **两个** 整数，并返回它们的数组下标。
 
@@ -680,7 +760,7 @@ def twoSum(self, nums, target):
 
 
 
-## 堆栈和队列
+## 堆、栈和队列
 
 python中用**列表List**模拟栈和队列的功能： 
 栈在顶部先进后出（FILO），通常用List的最右端模拟栈的顶部 
@@ -707,7 +787,7 @@ python中用**列表List**模拟栈和队列的功能：
 
 ### LeetCode
 
-#### [225. 用队列实现栈](https://leetcode-cn.com/problems/implement-stack-using-queues/)
+[225. 用队列实现栈](https://leetcode-cn.com/problems/implement-stack-using-queues/)
 
 请你仅使用两个队列实现一个后入先出（LIFO）的栈，并支持普通队列的全部四种操作（`push`、`top`、`pop` 和 `empty`）。
 
@@ -742,7 +822,7 @@ class MyStack(object):
     return not bool(self.q)
 
 ```
-#### [232. 用栈实现队列](https://leetcode-cn.com/problems/implement-queue-using-stacks/)
+[232. 用栈实现队列](https://leetcode-cn.com/problems/implement-queue-using-stacks/)
 
 请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（`push`、`pop`、`peek`、`empty`）：
 
@@ -839,7 +919,7 @@ def heapSort(arr):
 
 ## Copy
 
-#### 链表
+### 链表
 
 ```python
 class ListNode(object):
@@ -880,7 +960,7 @@ def ReverseLinkList(self,head):
     return prev
 ```
 
-#### 堆
+### 堆
 
 ```python
 # 堆排序
