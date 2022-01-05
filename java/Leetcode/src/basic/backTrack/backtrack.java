@@ -1,4 +1,4 @@
-package basic;
+package basic.backTrack;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -21,7 +21,7 @@ class Solution{
 
     void backtrack(int[] nums, LinkedList<Integer> track){
         if(track.size()==nums.length){
-            res.add(new LinkedList(track));
+            res.add(new LinkedList<>(track));
             return;
         }
 
@@ -33,6 +33,5 @@ class Solution{
             backtrack(nums,track);
             track.removeLast();
         }
-
     }
 }
