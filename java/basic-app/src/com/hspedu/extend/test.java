@@ -1,11 +1,8 @@
-package com.hspedu.extend_;
+package com.hspedu.extend;
 
 public class test {
     public static void main(String[] args) {
-        Pupil p = new Pupil();
-        p.name = "xu";
-        p.age = 15;
-        p.setScore(100);
+        Pupil p = new Pupil("tan",24,100);
         p.testing();
         p.showInfo();
     }

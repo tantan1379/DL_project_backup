@@ -1,4 +1,4 @@
-package com.hspedu.polymorphic;
+package com.hspedu.polymorphic.basic;
 
 public class Dog extends Animal{
     public Dog() {

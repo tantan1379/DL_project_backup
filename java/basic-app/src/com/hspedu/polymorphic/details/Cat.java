@@ -1,4 +1,4 @@
-package com.hspedu.poly_.detail_;
+package com.hspedu.polymorphic.details;
 
 public class Cat extends Animal {
     public void eat(){//方法重写

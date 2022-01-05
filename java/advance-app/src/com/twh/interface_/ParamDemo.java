@@ -1,6 +1,6 @@
 package com.twh.interface_;
 
-public class demo {
+public class ParamDemo {
     public static void main(String[] args) {
         System.out.println(Ai.a);
     }

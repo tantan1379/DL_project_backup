@@ -1,4 +1,4 @@
-package com.hspedu.polymorphic;
+package com.hspedu.polymorphic.basic;
 
 public class PolyTest {
     public static void main(String[] args) {

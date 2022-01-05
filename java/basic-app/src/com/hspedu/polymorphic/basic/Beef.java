@@ -1,4 +1,4 @@
-package com.hspedu.polymorphic;
+package com.hspedu.polymorphic.basic;
 
 public class Beef extends Food{
     public Beef(String name) {

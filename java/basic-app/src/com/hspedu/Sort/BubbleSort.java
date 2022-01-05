@@ -1,6 +1,6 @@
-package com.hspedu.BubbleSort;
+package com.hspedu.Sort;
 //bubble sort
-public class demo {
+public class BubbleSort {
     public static void main(String[] args) {
         int[] array = {4,3,1,5,7,2,1,6};
         bubbleSort(array);
