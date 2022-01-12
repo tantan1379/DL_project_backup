@@ -17,6 +17,12 @@
 
 <img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20210410115822169.png" alt="image-20210410115822169" style="zoom:50%;" />
 
+### java内置函数
+
+
+
+
+
 
 
 ## python内置函数

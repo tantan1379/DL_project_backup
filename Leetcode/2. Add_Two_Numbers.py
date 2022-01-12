@@ -42,3 +42,4 @@ if __name__ == "__main__":
     ForeachLinkList(ll2)
     res = addTwoNumbers(ll1, ll2)
     ForeachLinkList(res)
+ 

@@ -15,23 +15,22 @@ Open brackets must be closed in the correct order.
 '''
 
 def isValid(s):
-    if len(s)%2 ==1:
-        return False
-    stack = list()
-    pairs = {
-        "}":"{",
-        ")":"(",
-        "]":"["
-    }
-    for ch in s:
-        if ch in pairs:
-            if not stack or stack[-1]!=pairs[ch]:
-                return False
-            else:
+        if len(s)%2!=0:
+            return False
+        mapping = {"}":"{","]":"[",")":"("}
+        stack = list()
+        for c in s:
+            if c in mapping.keys():
+                # not stack表示只存在后括号，此时括号无效；stack[-1]!=mapping[c]表示最后一个传入的前括号与当前的后括号不匹配。
+                if not stack or stack[-1]!=mapping[c]:
+                    return False
+                # 括号有效时，就将前半括号pop
                 stack.pop()
-        else:
-            stack.append(ch)
-    return not stack
+            else:
+                stack.append(c)
+        # 循环完所有括号后，如果栈里没有括号，则说明已全部匹配；否则，未匹配完成，括号无效
+        return not stack
 
 
 print(isValid("{{()}[]}"))
+

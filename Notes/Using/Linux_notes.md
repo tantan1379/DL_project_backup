@@ -1,6 +1,6 @@
 # Linux学习笔记
 
-## 一、基础
+# 一、基础
 
 ### 概述
 
@@ -208,7 +208,7 @@ hosts是一个文本文件（lInux下位于/etc下），用于记录IP和hostnam
 
 
 
-## 三、实操
+# 二、实操
 
 ### 语法
 
@@ -619,7 +619,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 ### 文件目录指令
 
-* **打印信息**
+##### **打印信息**
 
 `pwd`	显示当前所在的绝对目录
 
@@ -647,7 +647,7 @@ Linux硬盘可以分为IDE硬盘和SCSI硬盘，目前基本使用SCSI硬盘。I
 
 
 
-* **查看文件向**
+##### **查看文件向**
 
 `cat file`	仅查看文件内容（类似于vim，但更安全）	
 
@@ -670,7 +670,7 @@ less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /�
 
 
 
-* **查找文件或指令**
+##### **查找文件或指令**
 
 `find [range] -name filename`	按指定文件名查找，如果存在则打印文件路径
 
@@ -690,7 +690,7 @@ less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /�
 
 
 
-* **切换目录**
+##### **切换目录**
 
 `cd path`	切换到指定目录（注意绝对路径前加`/`，相对路径不用加或用`./path`）
 
@@ -704,7 +704,7 @@ less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /�
 
 
 
-* **删除、创建、移动、拷贝**
+##### **删除、创建、移动、拷贝**
 
 `rmdir /path/fold`	删除空目录
 
@@ -724,7 +724,7 @@ less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /�
 
 
 
-* **压缩和解压**
+##### **压缩和解压**
 
 `yum install command`	安装软件（需联网）
 
@@ -732,7 +732,7 @@ less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /�
 
 `gunzip file.gz`	解压文件
 
-`zip [option] des_file.zip fi le`	压缩	[-r 递归压缩]	(将/home下的所有文件和子文件夹压缩成myhome.zip：`zip -r /home/myhome.zip /home/`)
+`zip [option] des_file.zip file`	压缩	[-r 递归压缩]	(将/home下的所有文件和子文件夹压缩成myhome.zip：`zip -r /home/myhome.zip /home/`)
 
 `unzip [option] file.zip`	解压	【[-d] 指定解压后文件的存放目录】 （将myhome.zip解压到/opt/tmp目录下：`zip -d /opt/tmp /home/myhome.zip`）
 
@@ -744,7 +744,7 @@ less交互界面：**空格或pagedown（向下一页）pageup(向上一页)  /�
 
 
 
-* **软链接**
+##### **软链接**
 
 软链接又称为符号链接，类似于windows下的快捷方式，存放着链接其他文件的路径
 
@@ -760,9 +760,21 @@ e.g.
 
 
 
-* **修改权限**
+##### **查看文件大小**
 
-* **修改文件**
+`du` 显示每个文件和目录的磁盘使用空间
+
+`du -sh`    查看当前所在文件夹的大小	【[-h] 以K M G为单位显示，提高可读性	 [-s] 仅显示目录的总值】
+
+`du -sh *` 查看当前文件夹下各个文件的大小
+
+`du -sh --max-depth=1 /指定文件夹`	查看指定深度的文件夹的大小（深度=1为指定文件夹下的文件）
+
+
+
+##### **修改权限**
+
+**修改文件**
 
 `chmod u=rwx,g=rx,o=x file/dir` 	给文件/目录的u、g、o分别赋予权限
 
@@ -772,13 +784,13 @@ e.g.
 
 `chmod 751 file/dir`	相当于`chmod u=rwx,g=rx,o=x file/dir`
 
-* **修改所有者**
+**修改所有者**
 
 `chown newowner file/dir`	改变文件所有者 【[-R] 可以对文件夹下的所有内容递归实现修改】
 
 `chown newowner:newgroup file/dir`	改变文件所有者和所在组	
 
-* **修改所有组**
+**修改所有组**
 
 `chgrp newgroup file/dir`	修改所在组【[-R] 可以对文件夹下的所有内容递归实现修改】
 

@@ -12,13 +12,12 @@ class Outer02{
 
 
     public void method(){
-        Animal tiger = new Tiger(){
+        new Tiger(){
             @Override
             public void cry() {
                 System.out.println("老虎叫唤...");
             }
-        };
-        tiger.cry();
+        }.cry();
     }
 }
 

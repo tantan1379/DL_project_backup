@@ -1,4 +1,4 @@
-package basic.backTrack;
+package basic.backtrack;
 
 import java.util.LinkedList;
 import java.util.List;

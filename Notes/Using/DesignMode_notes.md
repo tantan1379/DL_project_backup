@@ -1,0 +1,131 @@
+
+# 设计模式
+
+设计模式（Design pattern）代表了最佳的实践（在大量实践中总结和理论化之后优选的**代码结构、编程风格**以及解决的问题**思考方式**），通常被有经验的**面向对象**的软件开发人员所采用。
+
+
+
+#### **单例设计模式**
+
+单例设计模式涉及到一个单一的类，该类负责创建自己的对象，同时**确保只有单个对象被创建**。这个类提供了一种访问其**唯一**的对象的方式，可以直接访问，**不需要实例化**该类的对象。
+
+单例模式可以分为懒汉式和饿汉式两种。
+
+
+
+**饿汉式单例模式**
+
+饿汉式是指即使没有使用该类实例，随着类的加载也会创建该类的对象。
+
+创建饿汉式单例模式步骤：
+
+（1）构造器私有化，防止该类被实例化；
+
+（2）类内部创建（私有静态）对象，接收创建的一个对象；
+
+（3）向外暴露一个公共静态方法getInstance()，返回该对象，用于外部直接访问(无论访问几次，都是指向同一个内存地址）；
+
+e.g.:
+
+```java
+public class demo {
+    public static void main(String[] args) {
+        
+        SingleTon instance = SingleTon.getInstance();
+    }
+}
+
+class SingleTon{
+    private static SingleTon instance = new SingleTon();//在类内部直接创建对象
+
+    private SingleTon(){}//将构造器私有化，防止该类被实例化
+
+    public static SingleTon getInstance(){//提供公共static方法返回该对象
+        return instance;
+    }
+}
+```
+
+
+
+**懒汉式单例模式**
+
+饿汉式可能造成创建对象却没有使用，懒汉式可以防止这一问题；
+
+懒汉式只有当用户在main方法中使用getInstance()才会调用构造器并创建对象。
+
+创建懒汉式单例模式步骤：
+
+（1）构造器私有化，防止该类被实例化；
+
+（2）类内部创建（私有静态）对象；
+
+（3）提供一个公共静态方法getInstance()，可以返回该对象；
+
+e.g.:
+
+```java
+public class demo2 {
+    public static void main(String[] args) {
+        System.out.println(Cat.n1);//在类加载过程中不调用构造器
+        Cat instance = Cat.getInstance();
+        Cat instance2 = Cat.getInstance();//只调用一次构造器
+    }
+}
+
+class Cat{
+    private String name;
+    public static int n1 = 999;
+    private static Cat cat;//类内部创建（私有静态）对象
+
+    private Cat(String name){//构造器私有化，防止该类被实例化
+        System.out.println("构造器被调用");
+        this.name = name;
+    }
+
+    public static Cat getInstance(){//提供一个公共静态方法getInstance()，如果对象未被创建则创建该对象
+        if(cat==null){
+            cat = new Cat("miaomiao");
+        }
+        return cat;
+    }
+}
+```
+
+
+
+**饿汉式和懒汉式的区别：**
+
+（1）两者创建对象的**时机**不同，饿汉式在类加载中创建对象实例，懒汉式是在使用中创建；
+
+（2）饿汉式不存在**线程安全**问题，懒汉式存在线程安全问题；
+
+（3）饿汉式存在**资源浪费**的可能，懒汉式不存在。 
+
+
+
+#### **模板设计模式**
+
+在模板模式（Template Pattern）中，一个抽象类公开定义了执行它的方法的方式/模板。它的子类可以按需要重写方法实现，但调用将以抽象类中定义的方式进行。这种类型的设计模式属于行为型模式。
+
+意图：定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
+
+主要解决：一些方法通用，却在每一个子类都重新写了这一方法。
+
+优点： 1、封装不变部分，扩展可变部分。 2、提取公共代码，便于维护。 3、行为由父类控制，子类实现。
+
+缺点：每一个不同的实现都需要一个子类来实现，导致类的个数增加，使得系统更加庞大。 
+
+**注意事项：**
+
+* 为防止恶意操作，一般模板方法都加上 final 关键词。
+
+
+
+
+
+
+
+
+
+
