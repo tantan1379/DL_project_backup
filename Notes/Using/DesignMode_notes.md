@@ -30,7 +30,6 @@ e.g.:
 ```java
 public class demo {
     public static void main(String[] args) {
-        
         SingleTon instance = SingleTon.getInstance();
     }
 }

@@ -44,6 +44,8 @@ java将内存区域划分为：**栈、堆、方法区**、本地方法栈、寄
 
 * System、String在JDK的Java.lang包下，是默认的包，不需要导入
 
+* **java常用包**：`java.lang.*`（基本包**【系统默认导入】**，包含Integer、String等数据类型类）`java.utils.*`（系统提供的工具包，包含Scanner等）
+
   
 
 ---
@@ -52,25 +54,27 @@ java将内存区域划分为：**栈、堆、方法区**、本地方法栈、寄
 
 # IDEA特性
 
-### **基础**
+### 特性
 
-IDEA规定的**项目结构**：工程(Project)-模块(Module)-包(Package)-类(Class)
+**基础**
+
+**项目结构**：工程(Project)-模块(Module)-包(Package)-类(Class)
 
 IDEA的**源码文件（java文件）**被保存在project的**src**文件夹下。当java文件被运行，会首先被编译为.class文件再运行。**class文件**被存放在project下自动创建的**out**文件夹下。
 
-**package用法**
 
-package的本质是用不同文件夹存放源文件。**具体操作**如下：
 
-源文件**必须**在**最开头**写出自己所在的包：`package packageName;` 
+**包(package)**
+
+package的本质是用不同文件夹存放源文件。源文件**必须**在**最开头**写出自己所在的包：`package packageName;` 
 
 **导入不同包下的类**：`import otherPackage.类名;`，此时可以用`类名`默认的指代该类。（如果不导入外部的类，也可在创建对象时指定（麻烦）：`otherPackage.类名 object = new otherPackage.类名();`）
 
-**命名规则**：只包含数字、字母、下划线和小圆点，不能以数字开头，不能有关键字。一般格式为**小写字母和小圆点：com.公司名.项目名.业务模块名**
+**命名规则**：只包含数字、字母、下划线和小圆点，不能以数字开头，不能有关键字。**(如果未满足则创建的包会变为普通的文件夹，无法创建class文件！**）
 
-**java常用包**：`java.lang.*`（基本包**【系统默认导入】**，包含Integer、String等数据类型类）`java.utils.*`（系统提供的工具包，包含Scanner等）
+**一般格式：**小写字母+小圆点，如com.公司名.项目名.业务模块名
 
-package的注意事项：（1）同一个package下不允许有两个同名的源文件；（2）即使两个包不同也不可以导入类名相同的类；（3）可以通过`包名`.*`按需导入包下的类，虽然方便但会影响到Java代码的编译速度。不建议；（4）同一个源文件只能有一个类是public的，同一个工程下的其他程序可以调用该类；
+**注意事项**：（1）同一个package下不允许有两个同名的源文件；（2）即使两个包不同也不可以**导入**类名相同的类；（3）同一个源文件只能有一个类是public的，同一个工程下的其他程序可以调用该类；
 
 
 
@@ -108,6 +112,8 @@ ctrl+b	定位到方法的定义（ctrl加鼠标左键也行）
 
 ctrl+h	查看层级关系（继承）
 
+ctrl+j	查看live template
+
 tab	自动补全代码也可将类需要的包自动导入
 
 
@@ -128,9 +134,11 @@ tab	自动补全代码也可将类需要的包自动导入
 
 **Class.getInstance().var** -> Class 对象名 = Class.getInstance();
 
+**itit**	->	while(iter.hasNext()){ Object next = iterator.next();}
 
 
-### **断点调试 Debug**
+
+### 断点调试
 
 断点调试是指在程序中的某一行设置断点，程序运行到该行就会停止。在断点调试过程中，是以对象的**运行类型**来执行的。
 
@@ -154,6 +162,42 @@ F9：resume（执行到下一个断点【我们可以在运行过程中动态添
 
 * Console为输出控制台，可以显示代码的输出情况，也可以进行输入操作；Debugger用于追踪代码的运行流程。
 * 将光标放在变量上，可以看到最新的数据。
+
+
+
+### JUnit
+
+JUnit是java语言的单元测试框架，主要用于单独测试某个方法。
+
+**使用流程：**
+
+（1）在需要测试的方法前一行输入@Test；
+
+（2）输入alt+enter，选择JUnit的版本（5.4.2常用）下载相应的Library；
+
+（3）直接对某个方法进行运行或调试；
+
+**注意事项：**
+
+* 测试单元中的每个方法一定要能够独立测试，其方法不能有任何依赖。
+
+
+
+### 功能
+
+（1）在类中右键可以查看类的例图(diagram)，可以查看类之间的关系，implement和extend情况。实现表示继承，虚线表示实现。
+
+（2）修改主函数args的输入：Edit Configurations->Program arguments(用空格隔开各个参数)
+
+
+
+### 异常字典
+
+（1）Content of collection are updated, but never queried.
+
+原因说明：向这个集合里面添加元素，而并没有相对应的取出的操作，或者没有返回该集合；
+
+解决办法：进行集合读取的方法，如get()方法。
 
 
 
@@ -237,7 +281,7 @@ int in = 5;
 
 
 
-### 运算
+### 运算符和其优先级
 
 **运算符**
 
@@ -327,13 +371,6 @@ int randomNumber = rand.nextInt(50)+1;//(1-50)	注意，nextInt(bound)方法会�
 
 * 知道循环次数用for，知道循环中止情况使用while。`while(true)`和`for(::)`都可完成死循环，一般使用`while(true){}`完成死循环。
 
-**增强for:**
-
-语法：for(element:array){...}
-
-* 对element进行赋值或修改无法真正改变array的值，因为element只有在for循环内有效，修改值需要修改array[i]的值；
-* 如果element为一个对象，则要写出他所指向的类名；
-
 
 
 **switch case语句**
@@ -380,7 +417,7 @@ switch(expression){
 
 3、如果创建的对象只调用一个方法，可以直接用匿名对象调用该方法更简洁：`new 类名().method();`
 
-
+4、比较字符串大小：`a.compareTo(b)`
 
 
 
@@ -389,6 +426,8 @@ switch(expression){
 
 
 # 数组
+
+### 基本概念
 
 数组元素可以是任何类型（只要所有元素具有**相同**的类型）。数组元素可以是**基本数据类型**，数组元素也可以是**类对象**，称这样的数组为对象数组，在这种情况下，数组的每一个元素都是一个对象的引用。
 
@@ -503,6 +542,8 @@ for(int i=0;i<array.length;i++){
 
 # 方法
 
+### 基本概念
+
 方法是一种语法结构，可以把一段代码封装成一个功能，以便重复调用。
 
 **方法的定义和调用**
@@ -535,9 +576,9 @@ for(int i=0;i<array.length;i++){
 
 **参数传递**
 
-值传递（形参为基本类型）：在传输实参给方法的形参的时候，并不是传输实参本身，而是传输实参变量中数据值。此时被调用的方法会在栈中新开辟一个空间，形参只在该空间内有效，而不能影响实参本身。
+值传递（形参为基本类型）：在传输基本类型的实参给方法的形参的时候，并不是传输实参本身，而是传输实参变量中数据值。此时被调用的方法会在栈中新开辟一个空间，形参只在该空间内有效，而不能影响实参本身。
 
-引用传递（形参为引用类型【数组、对象、字符串】）：在传输实参给方法的形参的时候，传递的是引用类型变量在堆中存放的地址，此时不管是发起调用的方法还是被调用的方法都访问堆中的同一个空间。
+引用传递（形参为引用类型【数组、对象、字符串】）：在传输引用类型的实参给方法的形参的时候，传递的是引用类型变量在堆中存放的地址，此时不管是发起调用的方法还是被调用的方法都访问堆中的同一个空间。（在新的栈空间中会创建一个新的实参指向形参所指向的地址）
 
 
 
@@ -612,6 +653,8 @@ public int sum(int... nums){
 
 # 面向对象（基础）
 
+### 基本概念
+
 面向对象（Object Oriented）是一种新兴的程序设计方法，或者是一种新的程序设计规范(paradigm)，其基本思想是使用**对象、类、继承、封装、多态**等基本概念来进行程序设计。从现实世界中客观存在的事物（即对象）出发来构造软件系统，并且在系统构造中尽可能运用人类的自然思维方式。
 
 类是共同特征的描述，对象是真实存在的具体实例。
@@ -644,6 +687,8 @@ this注意事项：（1）this可以用来访问本类的属性、方法和构�
 
 
 ### **对象内存布局和分配**
+
+过程：
 
 1. 创建对象后，会首先在**方法区**加载类的信息；
 2. 然后根据类信息在**堆**中分配空间并创建一个对象（每个新对象都会创建一个新的内存空间）；
@@ -811,7 +856,7 @@ equals()是Object的方法，只能判断引用类型；在Object的多个数据
 
 
 
-### 三大特性
+# 面向对象（中级）
 
 ### **封装**
 
@@ -901,8 +946,6 @@ Sub1.method();//指向Sub1s的method
 a = new Sub2();//修改animal的运行类型
 Sub2.method();//指向Sub2的method
 ```
-
-
 
 
 
@@ -1083,7 +1126,7 @@ public class PolyTest {
 
 **访问**类对象的语法：`类名.staticVar`	或	`对象名.staticVar`	(前提是 **满足访问修饰符的访问权限和范围**） 
 
-使用场景：当需要让每个类共享一个变量时，考虑使用类变量。
+**使用场景**：当需要让每个类共享一个变量时，考虑使用类变量。
 
 生命周期：类变量的生命周期由类的加载开始，随类的消亡而销毁；
 
@@ -1104,7 +1147,7 @@ public class PolyTest {
 
 访问类方法的语法：`类名.staticMethod()`	或	`对象名.staticMethod()`	(前提是 **满足访问修饰符的访问权限和范围**） 
 
-使用场景：当方法中不涉及任何和对象相关的成员，则可以将方法设计为静态方法，可以不用创建新对象，提高开发效率。
+**使用场景**：当方法中不涉及任何和对象相关的成员，则可以将方法设计为静态方法，可以不用创建新对象，提高开发效率。
 
 
 
@@ -1129,10 +1172,6 @@ main方法形式：`public static void main(String[] args){}`
 
 解读：（1）main方法由**java虚拟机(jvm)**调用；（2）必须要求**访问权限**为public以供jvm调用；（3）jvm在执行main()方法时不创建新对象，因此是static修饰的**静态方法**。main方法接收String类型的数组参数在args数组中保存执行java命令时传递给所运行类的参数。
 
-args传入的方式：（1）在命令行传入参数`java 类名 param1 param2 param3...`	（2）Idea传入参数Edit Configurations->Program arguments(用空格隔开各个参数)
-
-
-
 注意事项：
 **在main()方法下**，可以直接调用**main方法所在类**的**静态成员**，但不能访问该类的非静态成员（要通过创建实例对象，通过对象访问非静态成员）
 
@@ -1144,9 +1183,9 @@ args传入的方式：（1）在命令行传入参数`java 类名 param1 param2 
 
 与方法不同的是，代码块没有方法名，没有返回值，没有参数，只有方法体，而且不用通过对象或类显式调用。其在**加载**类或**创建**类时**隐式调用**。
 
-语法：`[修饰符] {代码};`	修饰符可选(static)，代码最后的;可加可不加。
+**语法**：`[修饰符] {代码};`	修饰符可选(static)，代码最后的;可加可不加。
 
-使用场景：如果多个构造器中有重复的语句，可以抽取到初始化块中，提高代码的重用性；
+**使用场景**：如果多个构造器中有重复的语句，可以抽取到初始化块中，提高代码的重用性；
 
 **静态和普通代码块的区别：**
 静态代码块是随着**类的加载**进行的，**只会执行一次**； 
@@ -1194,7 +1233,7 @@ public A(){
 
 final可以修饰**类、属性、方法和局部变量**。由final修饰的属性一般称为**常量**。包装类（Integer,Double,String）都是final类。
 
-使用场景：
+**使用场景**：
 
 （1）不希望**类被继承**时，可以用final修饰类；
 
@@ -1202,7 +1241,7 @@ final可以修饰**类、属性、方法和局部变量**。由final修饰的属
 
 （3）不希望类的某个**属性的值被修改**，可以用final修饰；
 
-（4）不希望某个**局部变量被修改**，可以用final修饰。
+（4）不希望某个**局部变量被修改**，可以用final修饰；
 
 
 
@@ -1219,12 +1258,14 @@ final修饰的一般属性的赋值位置可以在**类定义中**、在**构造
 * final类不能被继承，但可以实例化对象；
 * 非final类里如果有final方法，虽然该方法不能被重写，但是可以被继承；
 * 如果一个类已经是final类，则没有必要再将方法修饰为final方法；
+* 当我们用final修饰一个引用类型的数据（数组等），表示不允许修改变量存放的地址（不能再指向新的对象）。
 
 
 
 **注意事项：**
 
 * final不能修饰构造方法；
+* 如果有属性是final修饰，则不能存在无参构造器；
 * final和static往往搭配使用（前后均可），效率更高（底层编译器有相关优化）：当在主方法中调用final修饰的静态变量不会发生类加载。
 
 
@@ -1263,7 +1304,7 @@ java中有时必须从几个类中派生出一个子类，继承它们所有的�
 
 接口主要用于给出一些没有实现的方法，将他们封装到一起。当某个类要使用时根据具体情况实现该接口。从本质上讲，接口是一种特殊的**抽象类**，这种抽象类中**只包含常量和方法的定义**，而没有变量和方法的实现。
 
-
+接口中的**所有成员变量**都默认是由`public static final`修饰的，可以省略public static、final关键字；接口中的所有方法都默认是由`public abstract`修饰的，可以省略public和abstract关键字；
 
 接口语法：
 
@@ -1313,7 +1354,7 @@ class 类名 implements 接口1,接口2{
 **注意事项：**
 
 * jdk7前，接口中的所有方法没有方法体，而在jdk8开始接口中可以有**静态方法和默认方法**（默认方法用default修饰）；
-* 接口中的**所有成员变量**都默认是由public static final修饰的，可以省略public static、final关键字；接口中的所有方法都默认是由public abstract修饰的，可以省略public和abstract关键字；
+* 
 * 接口的访问修饰符只能是public或默认，与类的访问修饰符一致；
 * 如果父类和其接口有重名的对象，要注意作区分：访问父类用`super.x`，访问接口用`接口名.x`，否则会报错；
 
@@ -1327,17 +1368,11 @@ class 类名 implements 接口1,接口2{
 
 接口：如果子类需要扩展功能，可以通过实现接口的方式扩展。**接口的实现实际是为java单继承机制的补充。**接口的价值在于设计好各种规范，使得可以更好地利用。
 
-**逻辑关系**不同：
+**逻辑关系**不同：逻辑上接口是like a的关系，继承是is a的关系。
 
-逻辑上接口是like a的关系，继承是is a的关系。
+**灵活程度**不同：接口比继承更灵活。接口在一定程度上可以实现代码解耦的功能（接口的规范性+动态绑定）；
 
-**灵活程度**不同：
-
-接口比继承更灵活。接口在一定程度上可以实现代码解耦的功能（接口的规范性+动态绑定）；
-
-**规范和规则**不同：
-
-实现接口的类必须实现接口中所有的方法，而继承中的方法只会出现重写（此时会发生动态绑定）
+**规范和规则**不同：实现接口的类必须实现接口中所有的方法，而继承中的方法只会出现重写（此时会发生动态绑定）
 
 
 
@@ -1495,7 +1530,7 @@ class Outer01{
 
 匿名内部类在语法上看既有**定义类**的特征，也有**创建对象**的特征。
 
-使用场景：某个内部类只想使用一次，后面不再使用 -> 使用匿名内部类简化开发
+**使用场景**：某个内部类只想使用一次，后面不再使用 -> 使用匿名内部类简化开发
 
 作用域和访问规则：同局部内部类。
 
@@ -1503,7 +1538,7 @@ class Outer01{
 
 语法（用对象接收/传入方法）：`接口名/类名 对象 = new 接口名/类名(){...};`(分号不能省)
 
-语法（直接调用）：`new 接口名/类名(){...}.method(参数列表); `	（method在方法体{}中）
+语法（直接调用接口或类中的方法）：`new 接口名/类名(){...}.method(参数列表); `	（method在方法体{}中）
 
 
 
@@ -1511,24 +1546,24 @@ class Outer01{
 
 * 当我们基于**接口名**创建匿名内部类时，编译器底层会自动分配类名：**外部类名$x**，x为匿名内部类的个数（从1开始）；
 
-如果创建了对象，则对象的编译类型为该接口，运行类型为自动分配的类，具体实现为方法体中的内容。显式表达为：
+    如果创建了对象，则对象的编译类型为该接口，运行类型为自动分配的类，具体实现为方法体中的内容。
 
-`new 接口名(){...};`	->	`new 外部类名$x implements 接口名{...}`
+    显式表达为：`new 接口名(){...};`	->	`new 外部类名$x implements 接口名{...}`
 
 * 当我们基于**类名**创建匿名内部类时，编译器底层会自动分配类名：**外部类名$x**，x为匿名内部类的个数（从1开始）；
 
-注意该类可以为非抽象类也可以为抽象类，视具体问题而定，如果该类为抽象类则内部类必须实现抽象类的所有方法。
-
-如果创建了对象，则对象的编译类型为该类，运行类型为自动分配的类，具体实现为方法体中的内容。程序会首先运行编译类型的构造器。显式表达为：
-
-`new 类名(参数列表){...};`	->	`new 外部类名$x extends 类名{...}`
-
+    注意该类可以为非抽象类也可以为抽象类，视具体问题而定，如果该类为抽象类则内部类必须实现抽象类的所有方法。
+    
+    如果创建了对象，则对象的编译类型为该类，运行类型为自动分配的类，具体实现为方法体中的内容。程序会首先运行编译类型的构造器。
+    
+    显式表达为：`new 类名(参数列表){...};`	->	`new 外部类名$x extends 类名{...}`
 
 **实践：**
 
 匿名内部类可以提高代码的**灵活性**，防止出现硬编码的牵一发而动全身的情况。
 
 e.g.:匿名内部类可以作为实参直接传递(涉及到的知识点：继承、多态、动态绑定、内部类)
+
 ```java
 public class AnnoymousInnerClassdemo {
     public static void main(String[] args) {
@@ -1556,9 +1591,9 @@ interface Test{
 
 非静态成员内部类定义在外部类的成员位置，没有static修饰。
 
-**作用域：**整个类体
+**作用域：** 整个类体
 
-**注意点：**可以为成员内部类添加任意的访问修饰符，因为成员内部类本质上就是一个成员；
+**注意点：** 可以为成员内部类添加任意的访问修饰符，因为成员内部类本质上就是一个成员；
 
 **访问规则：**
 
@@ -1568,9 +1603,9 @@ interface Test{
 
 * **外部其它类**访问**成员内部类**的成员：两种方式
 
-​		[1] `Outer.Inner inner = outer.new Inner();`	用inner对象访问Inner的成员；
+[1] `Outer.Inner inner = outer.new Inner();`	用inner对象访问Inner的成员；
 
-​		[2]在外部类中，定义一个方法:`public Inner getInstance(){return new Inner();}`在其他外部类中：`Outer.Inner inner=outer.getInstance();`
+[2]在外部类中，定义一个方法:`public Inner getInstance(){return new Inner();}`在其他外部类中：`Outer.Inner inner=outer.getInstance();`
 
 * 外部类和内部类的成员重名时，用内部类访问时遵守就近原则优先访问内部的成员。如需要访问外部成员使用：`外部类名.this.成员名`
 
@@ -1617,6 +1652,24 @@ interface Test{
 
 * 枚举对象根据需要，可以有多个属性；
 
+**举例：**
+
+```java
+class Season{
+    private final String name;
+    public static final Season SPRING = new Season("春天");
+    public static final Season SUMMER = new Season("夏天");
+
+    private Season(String name){
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+}
+```
+
 
 
 **enum关键字实现枚举类**
@@ -1640,14 +1693,28 @@ interface Test{
 **注意事项：**
 
 * 枚举类的构造器（有参/无参）只能是私有的，枚举对象会根据参数列表自动选择使用的构造器；
-
 * 当我们使用enum关键字开发枚举类时，默认会继承Enum类(java.lang.Enum)；
-
 * 如果没有重写toString方法，则enum类会继承Enum类的toString。打印对象时会输出对象名；
-
 * 枚举类默认被final修饰，不能继承任何类，这是因为枚举类隐式继承了Enum，java为单继承；枚举类可以实现接口；
 
-  
+**举例：**
+
+```java
+enum Season1{
+    SPRING("春天"),SUMMER("夏天");//枚举对象必须放在枚举类的行首
+    private final String pname;
+
+        private Season1(String name){
+        this.pname = name;
+    }
+
+    public String getName() {
+        return pname;
+    }
+}
+```
+
+
 
 
 
@@ -1739,6 +1806,1040 @@ infotype：
 | unchecked                | to suppress warnings relative to unchecked operations（ 抑制没有进行类型检查操作的警告） |
 | unqualified-field-access | to suppress warnings relative to field access unqualified（ 抑制没有权限访问的域的警告） |
 | unused                   | to suppress warnings relative to unused code（ 抑制没被使用过的代码的警告） |
+
+
+
+### 异常
+
+程序执行中发生的不正常称作"异常"。（语法和逻辑错误不是异常）
+
+执行过程中发生的异常事件可以分为：
+
+1）Error：Java虚拟机无法解决的问题，会导致程序崩溃。（如JVM系统内部错误、资源耗尽【数组越界、栈溢出、OOM等】）
+
+2）Exception：其他因编程错误或偶然的外在因素导致的一般性问题，可以使用针对性的代码进行处理。（如空指针访问、读取不存在的文件、网络中断等）
+
+Exception可以分为两大类：
+
+（1）**运行时异常**：程序运行时发生的异常(RuntimeException)，即使不进行异常处理(try-catch/throws)也能编译通过（由编译器默认处理）。一般是指编译时的逻辑错误（程序员应该避免，但出现了可以不处理，全处理可能导致效率和可读性的减弱）。是字节码文件在内存加载、运行时发生的；
+
+（2）**编译时异常**：编译器检查出的异常，编译器必须要求处理的异常。此时Java源文件还未编译成字节码文件。
+
+
+
+**异常体系图**
+
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20220113104056740.png" alt="image-20220113104056740" style="zoom: 50%;" />
+
+
+
+**常用运行异常**(Throwable<-Exception<-RuntimeException)
+
+（1）NullPointerException 空指针异常：当应用程序试图在需要对象的地方使用null时，抛出该异常；
+
+（2）ArithmeticException 数学运算异常：当出现异常的运算条件时，抛出此异常；
+
+（3）ArrayIndexOutOfBoundsException  数组下标越界异常：用非法索引访问数组时抛出的异常；
+
+（4）ClassCastException 类型转换异常：当试图将对象强制转换为不是实例的子类时，抛出该异常；
+
+（5）NumberFormatException 数字格式不正确异常：当应用程序试图将字符串转换成一种数值类型，但该字符串不能转换为适当格式时，抛出该异常
+
+
+
+**常用编译异常**
+
+（1）SQLException：操作数据库时，查询表可能发生异常；
+
+（2）IOException：操作文件时，发生的异常
+
+（3）FileNotFoundException：操作不存在文件，发生的异常；
+
+
+
+**异常处理**
+
+ 异常处理（又称为错误处理）功能提供了处理程序运行时出现的任何意外或异常情况的方法。异常处理分离了接收和处理错误代码。这个功能理清了编程者的思绪，也帮助代码增强了可读性，方便了维护者的阅读和理解。
+
+方式：（1）try-catch-finally：程序员在代码中捕获发生的异常，自行处理；（2）throws：将发生的异常抛出，交给**上一级调用者**处理（如顶级处理者JVM，会输出异常信息后退出程序）（3）try-finally：不捕获异常，程序遇到异常会崩溃并退出，表示不管是否发生异常都执行某个业务逻辑；
+
+
+
+**try-catch-finally**
+
+语法：
+
+```java
+try{
+//异常代码
+}catch(NullPointerException e){//子类异常
+    //异常发生时，系统将异常封装成Exception e对象，将该对象传递给catch
+    //得到异常对象e后，程序员自己处理
+}catch(Exception e){//父类异常
+	//其他异常
+}finally{//可以省略
+    //不管try代码块是否有异常发生时，始终执行finally代码块
+}
+```
+
+try中放可能发生异常的代码，catch代码块用于写程序员对异常的处理（**如果没有发生异常，catch代码块不执行**），finally表示始终执行的代码块（通常将释放资源、关闭连接的操作放在finally中，可以省略finally） 
+
+
+
+**注意事项:**
+
+* **一旦try中的异常发生，异常后面的代码就不会执行**（不管有几个catch)，直接进入catch块；
+* 如果异常没有发生，则顺序执行try代码块，不会进入到catch块；
+* 可以有多个catch语句，捕获不同的异常（进行不同的业务处理），要求父类异常在后(Exception)，子类异常在前(NullPointerException)，如果发生异常只会匹配一个异常）;
+* finally代码中一般不包含返回值，但如果程序在catch和finally都存在返回值，则出现异常时会先走catch的返回语句（但不返回，会将该值以临时变量的形式保存起来）再走finally的返回语句；
+
+
+
+实践（反复输入直到满足要求）e.g.
+
+```java
+Scanner scanner = new Scanner(System.in);
+String inputStr = "";
+int num = 0;
+while(true){
+    inputStr = scanner.next();
+    try{
+        num = Integer.parseInt(inputStr);
+        break;
+    }catch(NumberFormatException e){
+        System.out.print("你输入的不是一个整数：");
+    }
+}
+System.out.println("输入的值为="+num);
+```
+
+
+
+
+
+**throws关键字**
+
+Java总允许在方法的后面使用throws关键字对外声明该方法有可能发生异常，这样调用者在调用方法时，就明确地知道该方法有异常，并且必须在程序中对异常进行处理，否则编译无法通过。
+
+**使用场景：** 如果一个方法（中的语句执行时）可能生成某种异常，但不能确定如何处理，则throws方法应显式地抛出异常，表示该方法不对这些异常进行处理，而由该方法的调用者（上一级）负责处理。
+
+**使用细节：**
+
+* throws后面的异常类型可以是方法中产生的异常类型，也可以是它的父类
+
+* throws后可以放多个异常；
+* 子类**重写**父类的方法时，对抛出异常的规定：子类重写的方法，所抛出的异常类型和父类一致或是父类抛出异常类型的子类型；
+* 如果调用者调用了抛出**编译异常**的方法，则调用者也需要用throws抛出该异常（或其父类）或用try catch处理异常，否则报错； 如果调用抛出**运行异常**的方法，则不需要程序员显式的处理，可以由编译器默认处理。
+* 运行时异常程序如果没有处理，则会默认使用throws处理；
+
+
+
+**throw关键字**
+
+用于**主动**生成异常对象的关键字，位置在**方法体中**。
+
+语法：`throw exceptionObject;`	抛出xxx异常的对象。
+
+对比throws：throws位置在方法声明处，后面跟异常的类型。
+
+
+
+**自定义异常**
+
+在程序中，可能会遇到JDK提供的任何标准异常类都无法充分描述清楚我们想要表达的问题，这种情况下可以创建自己的异常类，即自定义异常类。
+
+主要通过继承Exception(编译异常)或RuntimeException(运行异常)实现。
+
+
+
+e.g.
+
+```java
+public class TestMyException {
+    public static void main(String[] args) {
+        Person p = new Person();
+        try {
+            p.setAge(-1);
+        } catch (IllegalAgeException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
+        System.out.println(p);
+    }
+}
+
+class IllegalAgeException extends Exception {
+    //默认构造器
+    public IllegalAgeException() {
+    }
+    //带有详细信息的构造器，信息存储在message中
+    public IllegalAgeException(String message) {
+        super(message);
+    }
+}
+
+class Person {
+    private int age;
+
+    public void setAge(int age) throws IllegalAgeException {
+        if (age < 0) {
+            throw new IllegalAgeException("人的年龄不应该为负数");
+        }
+        this.age = age;
+    }
+ 
+    public String toString() {
+        return "age is " + age;
+    }
+}
+```
+
+
+
+# 常用类
+
+### 包装类
+
+针对八种基本数据类型相应的引用类型被称为包装类(Wrapper)，通过包装类可以使用类中的工具和方法。
+
+Number的子类：**Byte、Short、Integer、Long、Float、Double**	(继承Number类，实现Comparable接口；Number类实现了Serializable接口)
+
+非Number子类：**Character、Boolean**	(继承Object类，实现Comparable和Serializable接口)
+
+
+
+**装箱和拆箱（基本数据类型和包装类的转换）**
+
+jdk5.0前需要手动装箱拆箱。
+
+手动装箱：`Integer integer = new Integer(n1);`或`Integer integer1 = Integer.valueOf(n1);`
+
+手动拆箱：`int n = integer.intValue();`
+
+jdk5.0后可以实现自动装箱拆箱。
+
+自动装箱：`Integer integer = n2;`	在底层自动使用`Integer integer = Integer.valueOf(n2);`
+
+自动拆箱：`int n3 = integer;`	在底层自动使用`int n3 = integer.intValue();`
+
+e.g.
+
+```java
+Object obj = true?new Integer(1):new Double(2.0);
+System.out.println(obj);//由于三元运算符（一个整体）有Double类型的数据，因此1会自动进行类型转换变为1.0
+```
+
+
+
+**包装类转换为String**
+
+转换目标：`Integer i = 100;`
+
+方式一：`String str = i + "";`
+
+方式二：`String str = i.toString();`
+
+方式三：`String str = String.valueOf(i);`
+
+
+
+**String转换为包装类**
+
+转换目标：`String str = "123";`
+
+转换为Integer：`Integer i = Integer.parseInt(str);`（发生了自动装箱 Integer.parseInt()返回一个int数据）
+
+
+
+**Integer的==比较**
+
+比较原则：
+
+    （1）如果比较方有基本数据类型，则只比较数据值是否相等；
+    
+    （2）如果比较方都是Integer类型，且有任意一方创建新对象，则地址不同，返回false；
+    
+    （3）如果比较方都为Integer类型，没有一方创建新对象，则看数据范围是否都在-127-128之间，是则根据值返回（比较值），不是则一定返回false（创建新对象）。
+
+在java底层代码中，valueOf()方法将int变量装箱。如果int变量的范围在-127-128内，则直接返回值；如果在范围外，则创建一个新对象。
+
+```java
+Integer i = new Integer(1);
+Integer j = new Integer(1);
+System.out.println(i == j);  //False
+/*
+1. 如果i 在 IntegerCache.low(-128)~IntegerCache.high(127),就直接从缓存数组返回
+2. 如果不在 -128~127,就创建新对象 new Integer(i)
+public static Integer valueOf(int i) {//底层源码
+    if (i >= IntegerCache.low && i <= IntegerCache.high)
+        return IntegerCache.cache[i + (-IntegerCache.low)];
+    return new Integer(i);
+}*/
+Integer m = 1; //底层 Integer.valueOf(1); -> 阅读源码
+Integer n = 1;//底层 Integer.valueOf(1);
+System.out.println(m == n); //True
+Integer x = 128;//底层Integer.valueOf(1);
+Integer y = 128;//底层Integer.valueOf(1);
+System.out.println(x == y);//False
+Integer k = 128;
+int t = 128;
+System.out.println(k==t);//True  只要有基本数据类型，则此时比较的就是值是否相等
+```
+
+
+
+### String类
+
+String对象用于保存字符串，也就是一组字符序列（char数组）。String常量对象就是用双引号括起的字符系列。字符串的字符采用Unicode字符编码，一个字符（不论字母还是汉字）占两个字节。
+
+**常用构造方法：**`String s1=new String();` `String s2=new String(String str);` `String s3=new String(char[] a);`等（String类有十几个可供重载的构造器）
+
+**继承实现关系：**String类**继承**Object类，**实现**Serializable、Comparable、CharSequence接口。Serializable接口保证该类可以串行化，可以在网络传输；Comparable保证类的对象可以相互比较；CharSequence保证该对象是字符序列。
+
+ **注意事项：**
+
+* String属于final类，不能被其他类继承；
+* String存放字符串内容的变量为`private final char value[];` String本质上是char类型的数组，final表示这个数组不能被修改（不能指向新的地址空间，而内部的元素允许被修改）；
+* 一旦字符串被重新赋值，则会指向一块新的地址，但原先被分配地址的内容不会被修改；
+
+
+
+**String对象的创建和内存布局**
+
+方式一：`String s = "abc";`	
+
+方式一先从常量池查看是否有"abc"数据空间，如果有则main栈的变量直接指向该常量的地址，如果没有则重新创建再指向；s最终指向**常量池**的空间地址。
+
+方式二：`String s1 = new String("abc");` （两种方式有本质区别）
+
+方式二先从堆中创建空间，里面维护**value属性值**，属性指向常量池的"abc"空间，如果常量池没有"abc"重新创建再指向；s最终指向**堆**中的空间地址。
+
+
+
+**String的比较**
+
+ `.intern()`方法用于返回该字符串常量池的地址。
+
+```java
+String a = "hsp"; //a 指向 常量池的 “hsp”
+String b =new String("hsp");//b 指向堆中对象
+System.out.println(a.equals(b)); //T
+System.out.println(a==b); //F
+System.out.println(a==b.intern()); //T
+System.out.println(b==b.intern()); //F
+```
+
+
+
+**字符串的特性**
+
+（1）拼接
+
+```java
+String a = "hello";//创建对象a
+String b = "abc";//创建对象b
+String c = a + b;//在底层先创建一个StringBuilder对象sb，执行两次sb.append()，再String c = sb.toString()【这里在堆中new了一块内存】
+System.out.println(c=="helloabc");//false
+```
+
+规则：执行字符串**变量**的加法，最后返回的值是在堆中创建的 ；执行字符串**常量**的相加，最后返回的结果是在常量池中创建。
+
+具体细节：jvm首先通过new申请了一个StringBuilder，然后调用这个StringBuilder的初始化方法；然后分别做了两次append操作，然后最后做一个toString()操作。**此时在堆中创建了StringBuilder的空间，效率低。**
+
+ 
+
+**String的常用方法**
+
+String类用于保存字符串常量，但由于每次更新都需要重新开辟空间，因此效率较低，为此java设计者提供了StringBuilder和StringBuffer用于增强功能，提高效率。
+
+**重要**
+
+`.length()`	返回字符串长度（数组的长度不需要括号）
+
+`.charAt()`	获取某索引处的字符
+
+`.substring(beginIndex,endIndex)`	截取指定范围的子串（左闭右开）(`.substring(beginIndex)`一个参数时重载截取从索引位置到字符串结尾的方法)
+
+`.equals()`	区分大小，判断字符串内容是否相等
+
+`.toCharArray()`	将字符串转换为字符数组（`String str = new String(charArray);`将字符数组再转换为字符串(刷题常用)）
+
+**其他**
+
+`.trim()`	去除字符串前后的空格；
+
+`.indexOf(char c/String s)`	获取字符（也可以是字符串）在字符串**第一次**出现的索引，找不到则返回-1；
+
+`.lastIndexOf(char c/String s)`	获取字符（也可以是字符串）在字符串**最后一次**出现的索引，找不到则返回-1；
+
+`.toUpperCase()`和`toLowerCase()` 	将字符串常量变为全大写和全小写
+
+`.replace(str ori,str des)`	将字符串所有的ori替换为des，返回替换过后的字符串。（注意：返回值才是进行替换过后的字符串，原字符串不会被操作）
+
+`.split(char c)` 以c字符为标准分割字符串，返回字符串数组String[]。 （如果有特殊字符，需要加入转义符）
+
+`.compareTo()`	比较两个字符串的大小（先比较第一个不一样字符的大小，如果没法找到则比较长度）
+
+`String str = String.format(formatStr,param1,param2,...);`	formatStr为带有占位符的字符串
+
+
+
+### **StringBuffer类**
+
+StringBuffer，字符串缓冲区是一种线程安全，可变的字符序列。 字符串缓冲区类似于String ，但可以进行修改。 在任何时间点它都包含一些特定的字符序列，但序列的**长度和内容**可以通过某些方法调用来改变。
+
+字符串缓冲区可供多个线程使用。 这些方法在必要时进行同步，以便任何特定实例上的所有操作都表现得好像它们以某个串行顺序出现，这与所涉及的每个单独线程所进行的方法调用的顺序一致。
+
+在java中是一个**容器**。主要操作是append和insert方法。
+
+特点：
+
+（1）StringBuffer是final类，不能被继承；
+
+（2）实现了Serializable接口，即StringBuffer对象可以串行化；可以保存到文件或网络传输；
+
+（3）继承了抽象类AbstractStringBuilder，该抽象类中有一个属性char[] value（非final），用于存放字符序列；
+
+
+
+**String和StringBuffer区别：**
+
+（1）String保存字符串常量，不能被修改，**只能修改其地址**；
+
+（2）String保存的字符串常量可以被修改，**可以更新其中的内容**，不用每次都更新地址（创建新对象），效率更高；
+
+  
+
+**构造方法**
+
+（1）`StringBuffer s = new StringBuffer();`	创建一个初始大小为16的char[]字符数组，用于存放字符内容；
+
+（2）`StringBuffer s = new StringBuffer(CharSequence seq);`	通过CharSequence构建一个存放seq的StringBuffer对象；
+
+（3）`StringBuffer s = new StringBuffer(int capacity);`	构建一个指定初始容量的StringBuffer对象；
+
+（4）`StringBuffer s = new StringBuffer(String str);`	通过String构建一个存放str的StringBuffer对象，容量为当前长度加16；
+
+
+
+**常用方法**
+
+(`.length()`/`.substring()`/`.indexOf()`/`.charAt()`等和String用法一致)
+
+`.toString()`	将StringBuffer对象转换为String
+
+`.append(String str)`	将str追加StringBuffer（可以一直在语句中追加；对对象本身进行修改；）
+
+`.delete(int start,int end)`	删除StringBuffer索引从[start, end)的字符（左闭右开；对对象本身进行修改）
+
+  `.replace(int start,int end,String str)`	使用str替换从索引[start, end)的内容（具体操作：首先删除指定范围内的字符，然后在start开始insert字符）
+
+`.insert(int index, String str/int i)`	将str或整数i插入到索引为index的StringBuffer中
+
+`.reverse()`	对StringBuffer实现反转操作
+
+
+
+**注意事项：**
+
+* 通过StringBuffer的append方法可以追加空值，此时会append("null")；而通过str传入构造器创建的StringBuffer中str不能为null，因为调用了super(str.length()+16)方法，会报空指针异常；
+
+
+
+**StringBuilder类**
+
+StringBuilder一种可变的字符序列。StringBuilder类提供了一个和StringBuffer兼容的API，但**不保证线程安全**，即没有synchronized关键字。主要使用在字符串缓冲区被**单个线程**使用的情况。
+
+由于 StringBuilder 相较于 StringBuffer 有**速度优势**，所以多数情况下建议使用 StringBuilder 类。
+
+
+
+**String、StringBuffer、StringBuilder比较**
+
+后两者基本类似，均代表可变的字符序列，方法一致。StringBuffer效率较高，线程安全；StringBuilder效率最高，但线程不安全。
+
+String表示不可变字符序列，效率低，但**复用率高**（不需要在池中重复创建）；效率低主要体现在每次进行字符串拼接等操作时，会在新的空间创建字符串，导致大量副本字符串对象存留在内存中（自动回收机制销毁对象也需要时间），降低效率，如果放在循环中则效率更低。因此如果对字符串变量做大量修改，不建议使用String。
+
+
+
+### **Arrays类**
+
+**常用方法**
+
+`Arrays.toString(int[] array)`	将数组转换为String用返回值接收  ，便于快速输出数组信息
+
+`Arrays.sort(int[] array)`	对数组本身进行排序操作（数量小于47使用插入排序，大于286使用归并排序，在两者之间使用快速排序
+
+`Arrays.binarySearch(int[] arr,Object o)`	通过二分查找查找val所在的索引，如果未查询到返回-(low+1)【应该插入的位置*(-1)】（要求数组为有序数组，当有多个相同的数值在数组中，无法正确找到该数值的最后一个数值的索引，或者第一个数值的索引。)
+
+`Arrays.copyOf(int[] arr,int length)`	从arr数组中拷贝length个元素赋予返回值（如果length大于数组长度则会用默认值填充，如果length<0则抛出NegativeArraySizeException异常）
+
+`Arrays.fill(int[] arr,Object element)`	用element填充arr的每个元素，对arr本身进行修改
+
+`Arrays.equals(int[] arr1,int[] arr2)`	判断两个数组是否相同，返回布尔值
+
+`Arrays.asList(param1,param2,...)`	将一组值转换成一个List集合，用返回值接收
+
+
+
+### **自定义排序**
+
+**Comparable接口和Comparator接口**
+
+Comparable是**只**定义了compareTo方法的接口：`public int compareTo(T o);`；该接口可以通过泛型确定compareTo方法的形参类型。
+
+**比较：**
+
+* 若一个类实现了**Comparable接口**，就意味着“该类支持排序”。“实现Comparable接口的类的对象”可以用作“有序映射(如TreeMap)”中的键或“有序集合(TreeSet)”中的元素，而不需要指定比较器。实现该接口的类可以通过重写`compare(T o)`实现排序比较。
+
+* **Comparator 接口**是比较器接口。我们若需要控制某个类的次序，而该类本身不支持排序(即没有实现Comparable接口)；那么，我们可以建立一个“该类的比较器”来进行排序。我们可以通过“实现Comparator类来新建一个比较器”，然后通过该比较器对类进行排序。通过重写`int compare(T o1,T o2)`实现比较。
+
+**结论：Comparable相当于“内部比较器”，而Comparator相当于“外部比较器”。**
+
+
+
+**ArrayList实现自定义排序**
+
+**语法：**`Arrays.sort(array,Comparator对象)`	通过实现**Comparator接口**自定义排序。
+
+
+
+通过创建Comparator对象实现自定义的排序。
+
+```java
+public class demo1{
+    public static void main(String[] args) {
+        Person[] personArray = new Person[5];
+        personArray[0] = new Person("a",18);
+        personArray[1] = new Person("b",17);
+        personArray[2] = new Person("c",18);
+
+        Arrays.sort(personArray, new Comparator<Person>() {
+            @Override
+            public int compare(Person o1, Person o2) {
+                return o1.getAge()-o2.getAge();//前-后为正序排列
+            }
+        });
+    }
+}
+
+class Person{
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+    
+        public int getAge() {
+        return age;
+    }
+}
+```
+
+通过创建Comparator对象并实现Comparable接口实现自定义的排序。
+
+```java
+public class exercise {
+    public static void main(String[] args) {
+        ArrayList<Employee> employees = new ArrayList<>();
+        employees.add(new Employee("twh", 10000, new Mydate(11, 3, 1997)));
+        employees.add(new Employee("twh", 10000, new Mydate(11, 6, 1997)));
+        employees.add(new Employee("xca", 8000, new Mydate(5, 2, 1995)));
+        employees.add(new Employee("sjy", 9000, new Mydate(2, 1, 1998)));
+
+        employees.sort(new Comparator<Employee>() {
+            @Override
+            public int compare(Employee o1, Employee o2) {
+                int i = o1.getName().compareTo(o2.getName());
+                if (i != 0) return i;
+                return o1.getBirthday().compareTo(o2.getBirthday());
+            }
+        });
+        System.out.println("employees" + employees);
+    }
+}
+
+class Employee {
+    private String name;
+    private double sal;
+    private Mydate birthday;
+
+    public Employee(String name, double sal, Mydate birthday) {
+        this.name = name;
+        this.sal = sal;
+        this.birthday = birthday;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public Mydate getBirthday() {
+        return birthday;
+    }
+
+    @Override
+    public String toString() {
+        return "员工" +"姓名：'" + name + '\'' +", 工资：" + sal +", 生日：" + birthday;
+    }
+}
+
+class Mydate implements Comparable<Mydate> {//<Mydate>是泛型的使用，确定并标识了compareTo方法中形参 对象的类型
+    private int month;
+    private int day;
+    private int year;
+
+    public Mydate(int month, int day, int year) {
+        this.month = month;
+        this.day = day;
+        this.year = year;
+    }
+
+    public int getMonth() {
+        return month;
+    }
+
+    public int getDay() {
+        return day;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    @Override
+    public String toString() {
+        return getYear() + "/" + getMonth() + "/" + getDay();
+    }
+
+    @Override
+    public int compareTo(Mydate o) {
+        int y = year - o.getYear();
+        if (y != 0) return y;
+        int m = month - o.getMonth();
+        if (m != 0) return m;
+        return day - o.getDay();
+    }
+}
+```
+
+
+
+---
+
+
+
+# 泛型
+
+### 基本概念
+
+Java 泛型（generics）是 JDK 5 中引入的一个新特性, 泛型提供了**编译时类型安全检测机制**，该机制允许程序员在编译时检测到非法的类型。
+
+泛型的本质是**参数化类型**，一般在  在**类声明和实例化**时将操作的数据类型被指定为一个参数（泛型是数据类型的类型）。
+
+**泛型的语法：**
+
+声明：`interface i<T>{}`	或	`class c<K,V>{}`	其中T、K、V表示类型，任意字母都可。
+
+举例：（容器ArrayList实例化）`List<String> strList = new ArrayList<>():`	只需要一边指定类型。
+
+
+
+**泛型的作用：**
+
+* 可以在类声明时，通过一个标识标识类中的**属性类型**，或者某个方法**返回值类型**，或者**参数类型**。
+
+  ```java
+  class Person<E>{//相当于将需要的类型传入到E中
+  	public E name;//E标识name的数据类型，该数据类型在创建Person对象时确定（编译期间就确定E是什么类型）
+  	
+  	public E getName(E name){//E标识getName的返回值和name的参数类型
+  		this.name = name;
+  		return name;
+  	}
+  }
+  ```
+
+* 泛型可以保证如果程序在编译时没有发出警告，运行时就不会产生ClassCastException异常，使得代码更简洁、健壮；
+
+* 可以对加入到集合中的数据类型进行约束（安全）；
+* 放入和取出集合中的对象时不需要进行类型转换，间接提高效率。
+
+
+
+**泛型的细节：**
+
+* **在类声明处**使用泛型如果为T或E，则**创建对象时**只能指定为引用类型，而不能为基本数据类型；
+* **在类声明处**指定的具体类型可以传入该类型或其子类型（向上转型：形参为父类对象，实参可以用子类对象传入）； 
+* 在实际开发中，往往不写等号右边的泛型（简写），只用<>代替，编译器自动进行类型推断；
+* 如果我们不加泛型，例如：`List l = new ArrayList();`    则**默认泛型E=Object**；
+* 泛型不具备继承性，例如不允许使用`List<Object> l = new ArrayList<String>();`
+
+
+
+
+
+### 自定义泛型
+
+**自定义泛型类**
+
+**语法：**`class 类名<T,R,...>{...}`
+
+**基本原则：**
+
+* **泛型类的类型在创建对象的时候确定；**
+
+* 类中的成员（属性、方法）可以使用泛型，属性依然可以使用构造器和setter、getter方法；
+
+* 使用泛型的数组不能进行初始化（原因：数组在创建时如果使用泛型则不能确定存储元素的类型，这样无法自定义的开辟空间）；
+
+* 静态属性的类型、静态方法中的返回值和参数都不能使用类的泛型（原因：泛型需要创建对象后才能确定数据类型，而静态成员在类的加载和创建时就放入内存，这将导致JVM无法完成初始化）；
+
+  
+
+**自定义泛型接口**
+
+**语法：**`interface 接口名<T,R,...>{...}`
+
+通过继承接口时指定泛型类型：`interface 接口名1 extends 接口名2<具体泛型类型1,...>{}`（此时该接口实现类的重写方法需要用指定的泛型类型去重写）
+
+在实现接口时直接指定泛型类型：`class 类名 extends 接口名<具体泛型类型1,...>{}`
+
+**基本原则：**
+
+* **泛型接口的类型，在继承接口和实现接口的时候确定；**
+
+* 接口中，静态成员也不能使用泛型；
+
+  
+
+**自定义泛型方法**
+
+**语法：**（方法定义）`访问修饰符<T,R,...> 返回值类型 方法名(参数列表){}`	注意此处的泛型标识符只提供给方法使用，而不是类或接口中的标识符 
+
+**基本原则：**
+
+* 泛型方法可以定义在普通类中，也可以定义在泛型类中（要求泛型方法和泛型类的标识符不同）；
+* 在泛型方法调用时：`对象名.方法名(实参列表)`，编译器会根据传入的实参类型自动为泛型方法中的标识符确定 类型；
+* 泛型方法可以使用自己声明的泛型，也可以使用类/接口声明的泛型。
+
+**注意事项：**
+
+* `访问修饰符 返回值类型 方法名(T o1， R o2)`不是泛型方法而只是使用了类或接口定义的泛型；
+
+  
+
+e.g.
+
+```java
+class Fish<T,R>{
+    public void eat(T t){}//不是泛型方法，只是使用了泛型
+    
+	public<U> void swim(U u,T t){}//要求泛型方法和泛型类的标识符不同;泛型方法可以使用自己声明的泛型，也可以使用类/接口声明的泛型
+}
+```
+
+
+
+### **泛型通配符**
+
+<?>：表示该类或方法支持任意泛型类型；
+
+<? extends A>：表示支持A类以及A类的子类型，规定了泛型的上限；
+
+<? super A>：支持A类以及A类的父类，不限于直接父类，规定了泛型的下限；
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+---
+
+
+
+# 集合框架
+
+### 基本概念
+
+由于数组的诸多不便，java提供了集合。集合可以动态保存任意多个对象，且提供了一系列便于操作对象的方法（增删改查）。
+
+数组的缺点：（1）长度在一开始需要指定且不能修改；（2）保存的数据必须是同一类型的元素；（3）元素增加删除等操作十分麻烦。
+
+Java 集合框架主要包括两种类型的**容器**，一种是**集合**（Collection），存储一个元素集合；另一种是**图**（Map），存储**键/值对映射**。尽管 Map 不是集合，但是它们完全整合在集合中。
+
+
+
+**框架体系**
+
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20220119212737442.png" alt="image-20220119212737442" style="zoom:50%;" />
+
+集合类Collection，实现了Iterable接口。
+
+Collection 接口又有 3 种子类型：**List、Set 和 Queue**，
+
+再下面是一些抽象类，最后是具体实现类，有常用的**Vector、ArrayList、LinkedList**类实现**List接口**，有常用的**TreeSet、HashSet**类实现了**Set接口**。有常用的**HashMap、Hashtable、TreeMap**类实现了**Map接口**。
+
+
+
+**实现类的特点**
+
+（1）Collection实现子类可以存放多个元素，每个元素可以为Object；
+
+（2）有些实现类可以存放重复的元素，有些不可以；
+
+（3）有些实现类是有序的（如List），有些是无序的（如Set）；
+
+
+
+### Iterable接口（迭代器）
+
+由于Collection类继承了Iterable接口，实现了Collection接口的类都可以使用Iterator迭代器。
+
+迭代器概念：Interator对象称为迭代器，主要用于遍历集合中的元素（该对象本身并不用来存放对象）；所有实现了Collection接口的集合类都有一个`Iterator()`方法，用于返回一个实现了Iterator接口的迭代器。 
+
+定义构造器方法：`Iterator<T> iter =col.iterator(); `	col指某个运行类型为实现类的对象，T表示需要遍历的集合元素属性
+
+重置迭代器：`iter = col.iterator();`
+
+
+
+**迭代器的执行原理**
+
+```java
+Iterator iterator = coll.iterator();
+while(iterator.hasNext()){//判断是否还有下一个元素(必须加，否则报NoSuchElementException异常）
+    System.out.println(iterator.next());//指针移动并返回移动后指向的元素
+}
+```
+
+
+
+**迭代器常用方法**
+
+`.hasNext()`	如果迭代器指向位置后面还有元素，则返回 `true``，否则返回false`
+
+`.next()`	指针向后移动并返回移动后指向的元素
+
+`.remove()`	删除当前指针所指向的元素，一般和next方法一起用，这时候的作用就是删除next方法返回的元素
+
+
+
+**增强for:**
+
+Collection的实现类和数组都可以使用增强for，增强for的底层仍然是迭代器。
+
+语法：for(type element:coll){...}
+
+* 对element进行赋值无法真正改变coll的值，因为底层代码先创建了一个迭代器对象，再将；
+* 如果element为一个对象，则要写出他所指向的类名；
+
+
+
+### List接口
+
+List接口是Collection的子接口。
+
+**特点：**（1）List集合类中的元素有序且可以重复（添加和取出的顺序需要一致）；（2）List集合类的每个元素有其对应的顺序索引；
+
+常用的实现类有：ArrayList、LinkedList、Vector
+
+
+
+**遍历方式**
+
+* 使用迭代器
+
+  ```java
+  Iterator iterator = list.iterator();
+  while (iterator.hasNext()) {
+      Object obj =  iterator.next();
+      System.out.println(obj);
+  }
+  ```
+
+* 增强for
+
+  ```java
+  for (Object o : list) {
+      System.out.println("o=" + o);
+  }
+  ```
+
+* 普通for
+
+  ```java
+  for (int i = 0; i < list.size(); i++) {
+      System.out.println("对象=" + list.get(i));
+  }
+  ```
+
+
+
+**常用方法**
+
+（1）查看和访问
+
+`.size()`	计算List中元素的数量
+
+`.get(int index)`	访问第index个元素
+
+`.contains(Object o)`	判断元素是否存在，返回布尔值
+
+`.isEmpty()`	判断ArrayList是否为空，返回布尔值
+
+`.subList(int fromIndex, int toIndex)`	返回索引间的子集合（左闭右开）
+
+（2）修改元素（增删改查）
+
+`.add(Object o)`	添加单个元素到List末尾
+
+`.add(int index, Object o)`	在指定index添加元素，index以及之后的元素往右移动
+
+`.addAll(Collection c)`	添加某一集合中的所有元素到 List中
+
+`.set(int index, Object o)`	修改第index个元素的值（如果index超过范围则会报索引越界异常）
+
+`.remove(int index)`	删除第index个元素，返回被删除的对象
+
+`.remove(Object o)`	删除第一次出现的该元素，返回true；如果不存在则不变，返回false
+
+`.clear()`	清空List的元素
+
+
+
+ **注意事项：**
+
+* 在List的内部，每个元素都是以Object的对象的形式进行存储的，如果需要**使用其任意实现类的方法，必须使用泛型或先进行向下转型**；
+* List是一个抽象类（接口），不能用List作为运行类型创建对象，需要**用向上转型的方法创建实现类的对象**；
+
+
+
+### ArrayList类
+
+ArrayList 类是一个**可以动态修改的数组**，与普通数组的区别就是它是没有固定大小的限制，我们可以添加或删除元素。
+
+**结构：**ArrayList 继承了 AbstractList，并实现了 List 接口（拥有List接口的所有方法），以及Serializable, Cloneable, RandomAccess接口。
+
+**特点：**
+
+* ArrayList中可以存放null元素；
+* ArrayList可以直接打印，而不需要进行转字符串等操作；
+* ArrayList的底层是用数组进行数据存储的；
+* ArrayList基本等同于Vector，但ArrayList的**执行效率更高**，但**线程不安全**。
+
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20220119214137257.png" alt="image-20220119214137257" style="zoom:50%;" />
+
+
+
+**底层实现**
+
+ArrayList中维护了一个Object类型的数组elementData（elementData用transient修饰，表示该属性不会被序列化）
+
+当创建ArrayList对象时，如果使用的是无参构造器，则初始化elementData的容量为0，第一次添加则扩容elementData到10，之后每次需要扩容则扩容到原来的1.5倍；如果使用有参构造器指定ArrayList的容量，则每次需要扩容时扩容到原来的1.5倍。（**每次扩容是扩容底层的elementData而不是扩容ArrayList**)
+
+
+
+使用**无参构造器**创建数组并添加元素时ArrayList的底层**执行步骤**：
+
+（1）创建元素时会创建一个空的elementData数组；
+
+（2）对添加的元素进行装箱操作（装箱为某一包装类）；
+
+（3）首先调用`ensureCapacityInternal(size+1)`确认是否需要扩容，再执行添加操作`elementData[size++]=e`；
+
+（4）`ensureCapacityInternal(size+1)`内部会记录集合被修改的次数，并判断`elementData.length`是否小于`size+1`，如果小于代表容量不够则使用`grow(size+1)`方法进行扩容；
+
+（5）`grow(size+1)`方法会使用`Arrays.copyOf()`方法创建一个比原先数组大0.5倍的elementData数组。（多余的位置用null填充)
+
+
+
+使用**有参构造器**创建数组并添加元素与无参构造器的异同（其他一致）：
+
+（1）在构造器中不再创建一个空的elementData数组，而是创建指定大小的数组；
+
+（2）直接扩容elementData数组的容量至1.5倍。
+
+
+
+### Vector类
+
+Vector底层也是一个对象数组：`protected Object[] elementData`.
+
+**结构：**Vector继承了 AbstractList，并实现了 List 接口（拥有List接口的所有方法），以及Serializable, Cloneable, RandomAccess接口。
+
+**特点：**（1）**线程安全**，但效率不高。
+
+<img src="C:\Users\TRT\AppData\Roaming\Typora\typora-user-images\image-20220120204842603.png" alt="image-20220120204842603" style="zoom:50%;" />
+
+
+
+**底层实现**
+
+当创建Vector对象时，如果使用的是无参构造器，则初始化elementData的容量为0，第一次添加则扩容elementData到10，之后每次需要扩容则扩容到原来的2倍；如果使用有参构造器指定Vector的容量，则每次需要扩容时扩容到原来的2倍。（**每次扩容是扩容底层的elementData而不是扩容Vector**)
+
+
+
+### LinkedList类
+
+链表（Linked list）是一种常见的基础数据结构，是一种线性表，但是并不会按线性的顺序存储数据，而是在每一个节点里存到下一个节点的地址。可以添加任意元素（元素可以重复，包括null）
+
+一个单向链表包含两个值: 当前节点的值和一个指向下一个节点的链接。一个双向链表有三个整数值: 数值、向后的节点链接、向前的节点链接。
+
+LinkedList（链表） 类似于 ArrayList，是一种常用的数据**容器**。
+
+**特点：**与 ArrayList 相比，LinkedList 的**增加和删除的操作效率更高**，而**查找和修改的操作效率较低**。
+
+
+
+**LinkedList和ArrayList的使用情况对比：**
+
+**以下情况使用 ArrayList :**
+
+（1）频繁访问列表中的某一个元素；（2）只需要在列表末尾进行添加和删除元素操作。
+
+**以下情况使用 LinkedList :**
+
+（1）需要通过循环迭代来访问列表中的某些元素；（2）需要频繁的在列表开头、中间、末尾等位置进行添加和删除元素操作。
+
+
+
+**LinkedList的底层操作机制**
+
+LinkedList底层实现了**双向链表**，属性中维护了两个属性first和last指向首节点和尾节点，每个节点（Node对象）又维护了prev、next、item三个属性值（prev指向前一个节点，next指向后一个节点，item用于真正存放节点数据）
 
 
 

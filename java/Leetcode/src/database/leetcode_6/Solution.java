@@ -35,11 +35,11 @@ public class Solution {
             list.add(new StringBuilder());
         }
         int i = 0;
-        for(element:s){
-            list.get(i).
-        }
+//        for(element:s){
+//            list.get(i).
+//        }
 
-
+        return "";
     }
 
 
