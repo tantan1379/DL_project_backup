@@ -137,7 +137,7 @@ class UserFactory{
 
 
 
-### Bean管理
+### Bean管理(基于xml方式)
 
 主要负责（1）Spring创建对象；（2）Spring注入属性。
 
@@ -145,13 +145,11 @@ class UserFactory{
 
 
 
-#### 基于xml方式
-
-##### 1、创建对象
+##### **1、创建对象**
 
 在spring配置文件中，使用bean标签，标签里添加对应属性，即可完成对象的创建。
 
-**格式：**<bean id="user" class="com.company.User"></bean>
+**语法：**``<bean id="user" class="com.company.User"></bean>``
 
 **注意事项：**
 
@@ -165,7 +163,7 @@ class UserFactory{
 
 
 
-##### 2、注入属性
+##### **2、注入属性的基本方式**
 
 语法：`<property name="xxx" value=“xxx”></property>`
 
@@ -181,9 +179,9 @@ class UserFactory{
 
 **步骤：**
 
-(1) 程序中创建需要实例化的类，定义相关属性和setter方法；
+(1) 程序中创建需要实例化的类，定义相关属性和Setter方法；
 
-(2) 在spring配置文件配置对象创建，配置setter方法的属性注入；
+(2) 在spring配置文件配置对象创建，配置Setter方法的属性注入；
 
 (3) 在测试程序中加载xml文件，获取对象。
 
@@ -230,9 +228,9 @@ class UserFactory{
 
 
 
-##### 3、注入其他类型属性
+**注入其他类型属性**
 
-向属性中设置空值：
+(1)向属性中设置空值：
 
 ```xml
 <bean id="book" class="com.company.Book">
@@ -244,7 +242,7 @@ class UserFactory{
 </bean>
 ```
 
-向属性中设置特殊值：
+(2)向属性中设置特殊值：
 
 ```xml
 <bean id="book" class="com.company.Book">
@@ -260,7 +258,7 @@ class UserFactory{
 
 
 
-##### 4、外部bean注入
+##### **3、外部bean注入**
 
 使用场景：调用其他包中的类
 
@@ -281,11 +279,15 @@ public class UserService {//service类
         userDao.update();//调用dao方法
     }
 }
-public class UserDaoImpl implements UserDao {//dao类
+class UserDaoImpl implements UserDao {//dao类
     @Override
     public void update() {
         System.out.println("dao update...........");
     }
+}
+//
+public interface UserDao {
+	void update();
 }
 ```
 (2) 在spring配置文件中进行配置
@@ -304,7 +306,7 @@ public class UserDaoImpl implements UserDao {//dao类
 
 
 
-##### 5、内部bean注入
+##### **4、内部bean注入**
 
 **步骤：**
 
@@ -354,4 +356,192 @@ public class Emp {
 
 
 
-##### **6、通过级联赋值注入属性**
+##### **5、通过级联赋值注入属性**
+
+在spring配置文件中配置
+
+```xml
+    <bean id="emp" class="com.twhupup.Emp">
+        <property name="name" value="twh"/>
+        <property name="age" value="18"/>
+    	<property name="dep" ref="dep"></property>
+    </bean>
+    <bean id="dep" class="com.twhupup.Dep">
+        <property name="name" value="microsoft"></property>
+    </bean>
+```
+
+
+
+##### **6、注入集合类型属性**
+
+（1）一般注入
+
+注入数组类型属性
+
+ ```xml
+<property name="courses">
+    <array>
+        <value>java课程</value>
+        <value>sql课程</value>
+        <value>spring课程</value>
+    </array>
+</property>
+ ```
+
+注入List集合类型属性
+
+```xml
+<property name="list">
+    <list>
+        <value>twh</value>
+        <value>sjy</value>
+        <value>lm</value>
+    </list>
+</property>
+```
+
+注入Map集合类型属性
+
+```xml
+<property name="map">
+    <map>
+        <entry key="JAVA" value="java"/>
+        <entry key="PHP" value="php"/>
+    </map>
+</property>
+```
+
+注入Set集合类型属性
+
+```xml
+<property name="set">
+    <set>
+        <value>java</value>
+        <value>php</value>
+        <value>mysql</value>
+    </set>
+</property>
+```
+
+(2) 在集合中设置对象类型值
+
+```xml
+<!--创建多个Course对象-->
+<bean id="course1" class="com.twhupup.collectiontype.Course">
+    <property name="name" value="Spring5框架"/>
+</bean>
+<bean id="course2" class="com.twhupup.collectiontype.Course">
+    <property name="name" value="Mybatis框架"/>
+<bean id="Stu" class="com.twhupup.collectiontype.Stu">
+    <!--将创建的对象注入到集合类型中-->    
+	<property name="courseList">
+        <list>
+            <ref bean="course1"/>
+            <ref bean="course2"/>
+        </list>
+	</property>
+</bean>
+```
+
+(3) 使用util标签提取list集合属性注入
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       <!--在spring配置文件中引入名称空间util-->
+       xmlns:util="http://www.springframework.org/schema/util"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+    <!--1.提取list集合类型属性-->
+    <util:list id="bookList">
+        <value>java指南</value>
+        <value>php指南</value>
+        <value>python指南</value>
+    </util:list>
+    <!--2.list集合类型属性注入-->
+    <bean id="book" class="com.twhupup.collectiontype.Book">
+        <property name="list" ref="bookList"/>
+    </bean>
+</beans>
+```
+
+
+
+### FactoryBean
+
+在Spring中有两种类型的bean，一种为普通bean，另外一种叫做FactoryBean。
+
+普通bean：在bean配置文件中定义的类型返回对应的类型；
+
+工厂bean：在bean配置文件中定义类型和返回类型不一致。
+
+
+
+创建工厂bean的步骤：
+
+* 创建类，让这个类作为工厂bean，实现接口FactoryBean；
+* 实现接口中的方法，在实现方法中定义返回bean的类型。
+
+
+
+
+
+### Bean作用域
+
+在 Spring 中默认情况 bean 是单实例对象。需要设置作用域时：
+
+（1）在 spring 配置文件 bean 标签里面有属性（scope）用于设置单实例还是多实例
+
+（2）scope 属性值（默认）singleton，表示是单实例对象；另一种属性值 prototype，表示是多实例对象
+
+```xml
+<bean id="book" class="com.atguigu.spring5.collectiontype.Book" scope="prototype"><!--设置为多实例-->
+        <property name="list" ref="bookList"></property>
+</bean>
+```
+
+
+
+单实例和多实例的创建时刻：
+
+设置 scope 值是 singleton 时候，**加载 spring 配置文件时**就会创建单实例对象 ；设置 scope 值是 prototype 时候，不是在加载 spring 配置文件时候创建对象，**在调用 getBean 方法时**创建多实例对象
+
+
+
+
+### Bean生命周期
+
+生命周期是对象从创建到销毁的过程，bean生命周期也就是bean对象的创建到销毁过程。
+
+bean的生命周期过程：
+
+（1）通过构造器创建bean对象实例（无参构造）
+
+（2）为bean属性设置值和其它bean引用（调用set方法）
+
+（3）将bean实例传递给bean的后置处理器方法postProcessBeforeInitialization
+
+（4）调用bean的初始化init-method方法（需要进行配置初始化）
+
+（5）将bean实例传递给bean的后置处理器方法postProcessAfterInitialization
+
+（6）得到bean对象，使用bean
+
+（7）容器关闭后，调用bean的销毁方法（需要进行配置销毁）X
+
+
+
+### xml自动装配
+
+根据指定的装配规则（属性名称或属性类型），Spring会自动将匹配的属性值进行注入。
+
+（1）根据属性名称进行自动装配
+
+在bean标签中添加`autowire="byName"`，再添加需要插入的属性的bean标签（注入值bean的id与需要插入的类属性名称一致）
+
+（2）根据属性类型进行自动装配
+
+在bean标签中添加`autowire="byType"`，
