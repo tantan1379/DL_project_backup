@@ -1758,8 +1758,6 @@ enum Season1{
 
 
 
-
-
 **Override**
 
 @Override表示指定重写父类的方法（从编译层面验证），**只能修饰方法**，不能修饰类、包、属性等。
@@ -2258,7 +2256,7 @@ StringBuilder一种可变的字符序列。StringBuilder类提供了一个和Str
 
 **String、StringBuffer、StringBuilder比较**
 
-后两者基本类似，均代表可变的字符序列，方法一致。StringBuffer效率较高，线程安全；StringBuilder效率最高，但线程不安全。
+后两者基本类似，均代表可变的字符序列，方法一致。StringBuffer效率较高但不如StringBuilder，线程安全；StringBuilder效率最高，但线程不安全。
 
 String表示不可变字符序列，效率低，但**复用率高**（不需要在池中重复创建）；效率低主要体现在每次进行字符串拼接等操作时，会在新的空间创建字符串，导致大量副本字符串对象存留在内存中（自动回收机制销毁对象也需要时间），降低效率，如果放在循环中则效率更低。因此如果对字符串变量做大量修改，不建议使用String。
 
