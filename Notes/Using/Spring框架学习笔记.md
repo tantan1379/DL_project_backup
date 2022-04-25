@@ -1,5 +1,7 @@
 # 概述
 
+### 基础
+
 Spring是轻量级开源的JavaEE框架，引入jar包很少。提供了功能强大的IOC和Aop（两大核心部分）及Web MVC等功能。
 
 **目的：**用于解决企业应用开发的复杂性。
@@ -30,33 +32,54 @@ Spring是轻量级开源的JavaEE框架，引入jar包很少。提供了功能�
 
 
 
----
+### XML文件
 
-# XML文件
+##### **介绍**
 
-### 概述
+xml（Extensible Markup Language）可拓展标记语言。是一种用于标记电子文件使其具有结构性的标记语言。
 
-xml文件一般指可扩展标记语言。 是一种用于标记电子文件使其具有结构性的标记语言。
+**特点：**
+
+* XML简单易于在任何应用程序中读/写数据
+* xml可用作数据的说明、储存、传输
+* xml文件现在多用于作配置文件
+* 作为系统与系统之间的传输数据的格式
+
+**xml和html比较：**
+
+* xml文档的标记可以随意扩展，html的标记是预定义的
+* xml区分大小写，html不区分大小写
+* html主要是用来显示数据的，xml是用来保存数据的
+* html中，空格会自动过滤，而xml不会
+* html中可以有多个根节点，在xml里面只有一个
+
+
+
+##### **语法**
 
 **结构：**一个XML文件通常包含**文件头**和**文件体**两大部分
 
-**处理指令**：处理指令主要用于来给处理XML文件的应用程序提供信息的，处理指令的格式：<?处理指令名称 处理指令信息?>
+**文件头（处理指令）**
+
+处理指令主要用于来给处理XML文件的应用程序提供信息的，处理指令的格式：<?处理指令名称 处理指令信息?>
+
+e.g. `<?xml version="1.0" encoding="UTF-8" standalone="yes"？>`
+
+- version：用来表示XML的版本号
+- encoding：指定XML编码格式
+- standalone：用来表示XML文件是否依赖外部的文件
+
+**文件体**
+
+XML元素定义：`<元素名></元素>`
+
+属性定义：`<元素名 属性="属性值" 属性2="属性值2"></元素>`
+
+注释定义`<!-- 这是一条注释-->`
 
 
 
-### **语法**
-
-* 标签中的属性值要加双引号；
-* 在HTML中是不区分大小写的，而XML**区分大小写**，包括标记，属性，指令等；
-* XML的注释与HTML的**注释**相同，以“<!--”开始，以“-->”结束。
-* XML**标记**与HTML标记相同，“<”表示一个标记的开始，“>” 表示一个标记的结束。XML中只要有起始标记，就必须有结束标记，而且在使用嵌套结构时，标记之间不能交叉。
-* 在XML中不含任何内容的标记叫做**空标记**，格式为：<标记名称/>
-
-
-
-
-
-### 转义字符
+**转义字符**
 
 \&gt;	大于>
 
@@ -70,7 +93,16 @@ xml文件一般指可扩展标记语言。 是一种用于标记电子文件使�
 
 
 
-### 结构
+**注意点：**
+
+* xml的标记不能以xml，数字或者下划线开头
+* 标签中的属性值要加双引号
+* XML**标记**与HTML标记相同，“<”表示一个标记的开始，“>” 表示一个标记的结束。XML中只要有起始标记，就必须有结束标记，而且在使用嵌套结构时，标记之间不能交叉。
+* 在XML中不含任何内容的标记叫做**空标记**，格式为：<标记名称/>
+
+
+
+##### **结构**
 
 **文件头**
 
@@ -137,7 +169,7 @@ class UserFactory{
 
 
 
-### Bean管理(基于xml方式)
+### Bean管理（基于xml）
 
 主要负责（1）Spring创建对象；（2）Spring注入属性。
 
@@ -145,7 +177,7 @@ class UserFactory{
 
 
 
-##### **1、创建对象**
+##### **创建对象**
 
 在spring配置文件中，使用bean标签，标签里添加对应属性，即可完成对象的创建。
 
@@ -163,27 +195,29 @@ class UserFactory{
 
 
 
-##### **2、注入属性的基本方式**
+##### **注入属性**
 
-语法：`<property name="xxx" value=“xxx”></property>`
+语法：`<property name="xxx" value=“xxx”></property>`	（置于bean标签结构体内）
 
 **知识点：**
 
-* property标签（写在bean标签的内部）中name表示类中的属性名，value表示向属性注入的值；
+* property标签中name表示类中的属性名，value表示向属性注入的值；
 * 如果不写bean标签的方法体，则会默认调用无参构造器；
-* 如果类有有参构造器，必须添加<constructor-arg>标签并添加**所有**属性的值。
+* 如果类有有参构造器，**必须**添加<constructor-arg>标签并添加**所有**属性的值。
+
+**步骤：**
+
+(1) 程序中创建需要实例化的类，定义相关属性；
+
+(2) 在spring配置文件配置对象创建，配置属性注入；
+
+(3) 在测试程序中加载xml文件，获取对象。
 
 
 
 **方式一：用set()方法注入属性**
 
-**步骤：**
-
-(1) 程序中创建需要实例化的类，定义相关属性和Setter方法；
-
-(2) 在spring配置文件配置对象创建，配置Setter方法的属性注入；
-
-(3) 在测试程序中加载xml文件，获取对象。
+当类中存在set()方法时：
 
 ```xml
 <bean id="book" class="com.company.Book">
@@ -196,11 +230,7 @@ class UserFactory{
 
 **方式二：通过有参构造器注入属性**
 
-**步骤：**
-
-(1) 创建需要实例化的类，定义相关属性和有参构造器方法；
-
-(2) 在spring配置文件配置对象创建，配置有参构造的属性注入。（注意一行写有参构造器的一个属性）
+当类中存在有参构造器时：
 
 ```xml
 <bean id="order" class="com.company.Order">
@@ -218,19 +248,19 @@ class UserFactory{
 
 **步骤：**
 
-（1）添加p名称空间在配置文件头部
+(1) 添加p名称空间在配置文件头部
 
 `xmlns:p="http://www.springframework.org/schema/p"`
 
-（2）在bean标签进行属性注入（set方式注入的简化操作）
+(2) 在bean标签进行属性注入（set方式注入的简化操作）
 
 `<bean id="book" class="com.atguigu.spring5.Book" p:bname="very" p:bauthor="good"></bean>`
 
 
 
-**注入其他类型属性**
+##### **注入其他类型属性**
 
-(1)向属性中设置空值：
+(1) 向属性中设置空值：
 
 ```xml
 <bean id="book" class="com.company.Book">
@@ -242,7 +272,7 @@ class UserFactory{
 </bean>
 ```
 
-(2)向属性中设置特殊值：
+(2) 向属性中设置特殊值：
 
 ```xml
 <bean id="book" class="com.company.Book">
@@ -258,9 +288,9 @@ class UserFactory{
 
 
 
-##### **3、外部bean注入**
+##### **外部bean注入**
 
-使用场景：调用其他包中的类
+使用场景：调用**其他包**中的类
 
 **步骤：**
 
@@ -279,7 +309,10 @@ public class UserService {//service类
         userDao.update();//调用dao方法
     }
 }
-class UserDaoImpl implements UserDao {//dao类
+```
+```java
+//另一个包中
+public class UserDaoImpl implements UserDao {//dao类
     @Override
     public void update() {
         System.out.println("dao update...........");
@@ -306,11 +339,11 @@ public interface UserDao {
 
 
 
-##### **4、内部bean注入**
+##### **内部bean注入**
 
-**步骤：**
+使用场景：一个类中包含另一个类的对象
 
-(1) 在实体类之间表示一对多关系，员工表示所属部门，使用对象类型属性进行表示；
+(1) 在同一个包内创建Dept类和Emp类，并生成set方法。
 
 ```java
 //部门类
@@ -346,7 +379,7 @@ public class Emp {
     <bean id="emp" class="com.company.Emp">
         <property name="name" value="twh"/>
         <property name="age" value="18"/>
-        <property name="dep"><!--设置对象属性-->
+        <property name="dep">
             <bean class="com.company.Dep">
                 <property name="name" value="microsoft"/><!--内部bean注入-->
             </bean>
@@ -354,11 +387,7 @@ public class Emp {
     </bean>
 ```
 
-
-
-##### **5、通过级联赋值注入属性**
-
-在spring配置文件中配置
+(2.1) 也可以通过级联赋值注入属性（类似于外部注入），在spring配置文件中配置
 
 ```xml
     <bean id="emp" class="com.twhupup.Emp">
@@ -373,7 +402,7 @@ public class Emp {
 
 
 
-##### **6、注入集合类型属性**
+##### **注入集合类型属性**
 
 （1）一般注入
 
@@ -487,8 +516,6 @@ public class Emp {
 
 
 
-
-
 ### Bean作用域
 
 在 Spring 中默认情况 bean 是单实例对象。需要设置作用域时：
@@ -536,11 +563,13 @@ bean的生命周期过程：
 
 ### xml自动装配
 
-根据指定的装配规则（属性名称或属性类型），Spring会自动将匹配的属性值进行注入。
+根据指定的装配规则（属性名称或属性类型），Spring会自动将匹配的属性值进行注入。autowire是在bean标签中设置的。
 
 （1）根据属性名称进行自动装配
 
-在bean标签中添加`autowire="byName"`，再添加需要插入的属性的bean标签（注入值bean的id与需要插入的类属性名称一致）
+在bean标签中添加`autowire="byName"`，再添加需要插入的属性的bean标签
+
+**注意点：**注入值bean的id与需要插入的类属性名称一致，否则注入失败（不报错）
 
 （2）根据属性类型进行自动装配
 
