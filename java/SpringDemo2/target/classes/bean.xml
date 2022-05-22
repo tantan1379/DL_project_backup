@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="stu" class="com.twhupup.collectiontype.Stu">
+        <property name="courses">
+            <array>
+                <value>java课程</value>
+                <value>sql课程</value>
+                <value>spring课程</value>
+            </array>
+        </property>
+        <property name="list">
+            <list>
+                <value>twh</value>
+                <value>sjy</value>
+                <value>lm</value>
+            </list>
+        </property>
+        <property name="map">
+            <map>
+                <entry key="JAVA" value="java"/>
+                <entry key="PHP" value="php"/>
+            </map>
+        </property>
+        <property name="set">
+            <set>
+                <value>java</value>
+                <value>php</value>
+                <value>mysql</value>
+            </set>
+        </property>
+        <property name="courseList">
+            <list>
+                <ref bean="course1"/>
+                <ref bean="course2"/>
+            </list>
+        </property>
+    </bean>
+
+    <!--创建多个Course对象-->
+    <bean id="course1" class="com.twhupup.collectiontype.Course">
+        <property name="name" value="Spring5框架"/>
+    </bean>
+    <bean id="course2" class="com.twhupup.collectiontype.Course">
+        <property name="name" value="Mybatis框架"/>
+    </bean>
+    <bean id="fb" class="com.twhupup.factorybean.factoryBean"/>
+
+</beans>

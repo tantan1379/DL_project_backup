@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--实现自动装配
+        bean标签属性autowire，配置自动装配
+        常用两个值：byName根据属性名注入，byType根据类型注入-->
+    <bean id="emp" class="com.twhupup.autowire.Emp" autowire="byType">
+<!--        <property name="dept" ref="dept"></property>-->
+<!--        <property name="dept" ref="dept"/>-->
+    </bean>
+    <bean id="dept" class="com.twhupup.autowire.Dept"></bean>
+</beans>
+
